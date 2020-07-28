@@ -7,27 +7,30 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
-import org.umi.boot.domain.Dict;
+import org.umi.boot.domain.Permission;
 
 import java.time.Instant;
 
-@ApiModel("字典视图模型（树形数据）")
+@ApiModel("菜单视图模型（树形数据）")
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DictLevelVM extends AbstractLevelAuditingVM<DictLevelVM> {
+public class PermissionLevelVM extends AbstractLevelAuditingVM<PermissionLevelVM> {
 
-    @ApiModelProperty("字典名称")
+    @ApiModelProperty("菜单名称")
     private String name;
 
-    @ApiModelProperty("字典唯一标识码")
-    private String code;
+    @ApiModelProperty("菜单路径")
+    private String path;
 
-    @ApiModelProperty("字典数据")
-    private String data;
+    @ApiModelProperty("菜单图标")
+    private String icon;
 
-    @ApiModelProperty("字典描述")
+    @ApiModelProperty("排序")
+    private Integer seq = 0;
+
+    @ApiModelProperty("菜单描述")
     private String desc;
 
     @ApiModelProperty("最后修改人")
@@ -36,9 +39,9 @@ public class DictLevelVM extends AbstractLevelAuditingVM<DictLevelVM> {
     @ApiModelProperty("最后修改时间")
     private Instant lastModifiedDate;
 
-    public static DictLevelVM adapt(Dict dict) {
-        DictLevelVM vm = new DictLevelVM();
-        BeanUtils.copyProperties(dict, vm);
+    public static PermissionLevelVM adapt(Permission permission) {
+        PermissionLevelVM vm = new PermissionLevelVM();
+        BeanUtils.copyProperties(permission, vm);
         return vm;
     }
 }

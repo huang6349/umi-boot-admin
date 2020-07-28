@@ -1,1 +1,0 @@
-package org.umi.boot.web.rest.filters;

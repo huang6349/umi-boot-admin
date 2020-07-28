@@ -27,13 +27,13 @@ public class PermissionResource {
     private PermissionLevelMapper permissionLevelMapper;
 
     @ApiOperation("查询所有的菜单")
-    @GetMapping("/permissions")
+    @GetMapping("/permission")
     public InfoStructure query() {
         return Info.success(permissionMapper.adapt(permissionRepository.findAll()));
     }
 
     @ApiOperation("查询所有的菜单（树形数据）")
-    @GetMapping("/permissions/tree")
+    @GetMapping("/permission/tree")
     public InfoStructure queryToTree() {
         return Info.success(permissionLevelMapper.adaptToTree(permissionRepository.findAll()));
     }

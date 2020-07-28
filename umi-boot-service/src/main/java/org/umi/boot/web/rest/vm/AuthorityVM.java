@@ -33,7 +33,10 @@ public class AuthorityVM extends AbstractIdAuditingVM {
     private String desc;
 
     @ApiModelProperty("角色菜单编号列表")
-    private Set<Long> permissions = Sets.newHashSet();
+    private Set<Long> permissionIds = Sets.newHashSet();
+
+    @ApiModelProperty("角色菜单名称列表")
+    private Set<String> permissionNames = Sets.newHashSet();
 
     @ApiModelProperty("最后修改人")
     private String lastModifiedBy;
@@ -45,7 +48,8 @@ public class AuthorityVM extends AbstractIdAuditingVM {
         AuthorityVM vm = new AuthorityVM();
         BeanUtils.copyProperties(authority, vm);
         vm.setCode(StringUtils.upperCase(StringUtils.replaceOnce(authority.getCode(), "ROLE_", "")));
-        vm.setPermissions(authority.getPermissions().stream().map(Permission::getId).collect(Collectors.toSet()));
+        vm.setPermissionIds(authority.getPermissions().stream().map(Permission::getId).collect(Collectors.toSet()));
+        vm.setPermissionNames(authority.getPermissions().stream().map(Permission::getName).collect(Collectors.toSet()));
         return vm;
     }
 }

@@ -35,8 +35,4 @@ public class UserInfo extends AbstractIdAuditingEntity {
     private Date birthday;
 
     private String idCard;
-
-    private String email;
-
-    private String mobilePhone;
 }

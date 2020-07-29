@@ -22,6 +22,7 @@ import org.umi.boot.web.rest.filters.AuthorityFilters;
 import org.umi.boot.web.rest.manage.AuthorityManage;
 
 import javax.validation.Valid;
+import java.util.Set;
 
 @Api(tags = "角色管理")
 @RestController
@@ -75,6 +76,12 @@ public class AuthorityResource {
     @PutMapping("/authority")
     public InfoStructure update(@Valid @RequestBody AuthorityManage manage) {
         return Info.success(authorityMapper.adapt(authorityService.update(manage)));
+    }
+
+    @ApiOperation("修改一个角色的菜单")
+    @PutMapping("/authority/permissions/{id}")
+    public InfoStructure update(@PathVariable Long id, @Valid @RequestBody Set<Long> permissionIds) {
+        return Info.success(authorityMapper.adapt(authorityService.update(id, permissionIds)));
     }
 
     @ApiOperation("删除一个或多个角色")

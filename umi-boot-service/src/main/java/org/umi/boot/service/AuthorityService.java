@@ -10,12 +10,14 @@ import org.umi.boot.commons.exception.BadRequestException;
 import org.umi.boot.commons.exception.DataAlreadyExistException;
 import org.umi.boot.config.GlobalConstants;
 import org.umi.boot.domain.Authority;
+import org.umi.boot.domain.Permission;
 import org.umi.boot.repository.AuthorityRepository;
 import org.umi.boot.web.rest.manage.AuthorityManage;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,6 +26,9 @@ public class AuthorityService {
 
     @Autowired
     private AuthorityRepository authorityRepository;
+
+    @Autowired
+    private PermissionService permissionService;
 
     @Transactional(readOnly = true)
     public Authority findById(Long id, String errorMessage) {
@@ -70,6 +75,15 @@ public class AuthorityService {
         return authorityRepository.save(authority);
     }
 
+    public Authority update(Long id, Set<Long> permissionIds) {
+        Authority authority = findById(id, StrUtil.format("数据编号为【{}】的角色信息不存在，无法进行菜单修改操作", id));
+        if (GlobalConstants.DATA_KEEP_STATE.equals(authority.getState())) {
+            throw new BadRequestException("该角色为系统保留角色，无法进行菜单修改操作");
+        }
+        authority.setPermissions(setPermissions(permissionIds));
+        return authorityRepository.save(authority);
+    }
+
     public List<Authority> batchDelete(Long[] ids) {
         return Arrays.stream(ids).map(this::delete).collect(Collectors.toList());
     }
@@ -81,5 +95,9 @@ public class AuthorityService {
         }
         authority.setState(GlobalConstants.DATA_DELETE_STATE);
         return authorityRepository.save(authority);
+    }
+
+    private Set<Permission> setPermissions(Set<Long> permissionIds) {
+        return permissionIds.stream().map(permissionId -> permissionService.findById(permissionId, StrUtil.format("数据编号为【{}】的菜单信息不存在，无法进行菜单修改操作", permissionId))).collect(Collectors.toSet());
     }
 }

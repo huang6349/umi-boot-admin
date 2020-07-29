@@ -4,6 +4,7 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,11 +19,15 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.umi.boot.domain.Authority;
+import org.umi.boot.domain.Permission;
 import org.umi.boot.repository.AuthorityRepository;
 import org.umi.boot.service.AuthorityService;
+import org.umi.boot.service.PermissionService;
 import org.umi.boot.web.rest.manage.AuthorityManage;
+import org.umi.boot.web.rest.manage.PermissionManage;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -49,6 +54,9 @@ class AuthorityResourceTest {
 
     @Autowired
     private AuthorityService authorityService;
+
+    @Autowired
+    private PermissionService permissionService;
 
     @Test
     void create() throws Exception {
@@ -139,6 +147,40 @@ class AuthorityResourceTest {
         Assertions.assertThat(currAuthority.getDesc()).isEqualTo(prevAuthority.getDesc());
         Assertions.assertThat(currAuthority.getUsers()).isEqualTo(prevAuthority.getUsers());
         Assertions.assertThat(currAuthority.getPermissions()).isEqualTo(prevAuthority.getPermissions());
+        Assertions.assertThat(currAuthority.getCreatedBy()).isEqualTo(prevAuthority.getCreatedBy());
+        Assertions.assertThat(currAuthority.getCreatedDate()).isEqualTo(prevAuthority.getCreatedDate());
+        Assertions.assertThat(currAuthority.getLastModifiedBy()).isNotNull();
+        Assertions.assertThat(currAuthority.getLastModifiedDate()).isNotNull();
+    }
+
+    @Test
+    void updatePermissions() throws Exception {
+        AuthorityManage manage = new AuthorityManage();
+        manage.setName(DEFAULT_NAME);
+        manage.setCode(DEFAULT_CODE);
+        Authority prevAuthority = authorityService.create(manage);
+        List<Authority> prevAll = authorityRepository.findAll();
+        PermissionManage permissionManage1 = new PermissionManage();
+        permissionManage1.setName(RandomUtil.randomString(12));
+        Permission permission1 = permissionService.create(permissionManage1);
+        PermissionManage permissionManage2 = new PermissionManage();
+        permissionManage2.setName(RandomUtil.randomString(12));
+        Permission permission2 = permissionService.create(permissionManage2);
+        Set<Long> permissionIds = Sets.newHashSet(permission1.getId(), permission2.getId());
+        ResultActions actions = mvc.perform(MockMvcRequestBuilders.put("/api/authority/permissions/" + prevAuthority.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(permissionIds)));
+        actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
+        actions.andExpect(status().isOk()).andDo(print());
+        List<Authority> currAll = authorityRepository.findAll();
+        Assertions.assertThat(currAll).hasSize(prevAll.size());
+        Authority currAuthority = currAll.get(currAll.size() - 1);
+        Assertions.assertThat(currAuthority.getId()).isEqualTo(prevAuthority.getId());
+        Assertions.assertThat(currAuthority.getName()).isEqualTo(prevAuthority.getName());
+        Assertions.assertThat(currAuthority.getCode()).isEqualTo(prevAuthority.getCode());
+        Assertions.assertThat(currAuthority.getDesc()).isEqualTo(prevAuthority.getDesc());
+        Assertions.assertThat(currAuthority.getUsers()).isEqualTo(prevAuthority.getUsers());
+        Assertions.assertThat(currAuthority.getPermissions()).hasSize(permissionIds.size());
         Assertions.assertThat(currAuthority.getCreatedBy()).isEqualTo(prevAuthority.getCreatedBy());
         Assertions.assertThat(currAuthority.getCreatedDate()).isEqualTo(prevAuthority.getCreatedDate());
         Assertions.assertThat(currAuthority.getLastModifiedBy()).isNotNull();

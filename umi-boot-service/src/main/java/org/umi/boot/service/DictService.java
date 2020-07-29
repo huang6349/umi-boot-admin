@@ -27,31 +27,11 @@ public class DictService {
     private DictRepository dictRepository;
 
     @Transactional(readOnly = true)
-    public Dict findById(Long id) {
-        return findById(id, "字典");
-    }
-
-    @Transactional(readOnly = true)
-    public Dict findById(Long id, Long pid) {
-        return findById(id, pid, "字典");
-    }
-
-    @Transactional(readOnly = true)
-    public Dict findById(Long id, String name) {
+    public Dict findById(Long id, String errorMessage) {
+        if (id == null) throw new BadRequestException(errorMessage);
         Optional<Dict> dict = dictRepository.findById(id);
-        if (!dict.isPresent()) {
-            throw new BadRequestException(StrUtil.format("未能在系统中找到数据编号为【{}】的{}信息", id, name));
-        }
+        if (!dict.isPresent()) throw new BadRequestException(errorMessage);
         return dict.get();
-    }
-
-    @Transactional(readOnly = true)
-    public Dict findById(Long id, Long pid, String name) {
-        Dict dict = findById(id, name);
-        if (!dict.getPid().equals(pid)) {
-            throw new BadRequestException(StrUtil.format("数据编号为【{}】的{}信息与对应的分类不匹配", id, name));
-        }
-        return dict;
     }
 
     public Dict create(DictManage manage) {
@@ -79,7 +59,7 @@ public class DictService {
     }
 
     public Dict update(DictManage manage) {
-        Dict dict = findById(manage.getId());
+        Dict dict = findById(manage.getId(), StrUtil.format("数据编号为【{}】的字典信息不存在，无法进行修改操作", manage.getId()));
         if (GlobalConstants.DATA_KEEP_STATE.equals(dict.getState())) {
             if (!StrUtil.equals(StrUtil.trimToNull(manage.getName()), StrUtil.trimToNull(dict.getName()))) {
                 throw new BadRequestException("该字典为系统保留字典，无法进行名称修改操作");
@@ -125,16 +105,12 @@ public class DictService {
     }
 
     public Dict delete(Long id) {
-        Optional<Dict> optional = dictRepository.findById(id);
-        if (!optional.isPresent()) {
-            throw new BadRequestException(StrUtil.format("数据编号为【{}】的字典信息不存在，无法进行删除操作", id));
-        }
-        Dict dict = optional.get();
+        Dict dict = findById(id, StrUtil.format("数据编号为【{}】的字典信息不存在，无法进行删除操作", id));
         if (GlobalConstants.DATA_KEEP_STATE.equals(dict.getState())) {
             throw new BadRequestException(StrUtil.format("数据编号为【{}】的字典信息为系统保留数据，无法进行删除操作", id));
         }
         dict.setState(GlobalConstants.DATA_DELETE_STATE);
-        batchUpdateState(optional.get().getLevel(), id);
+        batchUpdateState(dict.getLevel(), id);
         return dictRepository.save(dict);
     }
 

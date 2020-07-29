@@ -72,7 +72,7 @@ public class DictResource {
     @ApiOperation("查询一个字典（子级列表）")
     @GetMapping("/dict/children/{id}")
     public InfoStructure queryToChildren(@PathVariable Long id) {
-        Dict dict = dictService.findById(id);
+        Dict dict = dictService.findById(id, StrUtil.format("数据编号为【{}】的字典信息不存在，无法进行查询操作", id));
         Specification<Dict> specification = Specifications.<Dict>and()
                 .like("level", LevelUtil.calculateLevel(dict.getLevel(), dict.getId()) + "%")
                 .build();

@@ -19,4 +19,6 @@ public interface GlobalConstants {
     String DATA_DISABLED_STATE_TEXT = "禁用";
 
     String SYSTEM_ACCOUNT = "SYSTEM";
+
+    String AUTHORITY_ANONYMOUS = "ROLE_ANONYMOUS";
 }

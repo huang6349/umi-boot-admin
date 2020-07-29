@@ -146,6 +146,10 @@ class DictResourceTest {
 
     @Test
     void queryByPageable() throws Exception {
+        DictManage manage = new DictManage();
+        manage.setName(DEFAULT_NAME);
+        manage.setCode(DEFAULT_CODE);
+        dictService.create(manage);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/dict/pageable")
                 .param("page", "0")
                 .param("size", "20")

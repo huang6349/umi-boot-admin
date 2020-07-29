@@ -63,7 +63,7 @@ public class DictService {
             throw new BadRequestException("一级字典信息的数据必须为空");
         }
         if (isRoot && !dictRepository.findByCode(manage.getCode()).isEmpty()) {
-            throw new DataAlreadyExistException(StrUtil.format("唯一标识码为【{}】的信息已经存在了", manage.getCode()));
+            throw new DataAlreadyExistException(StrUtil.format("唯一标识码为【{}】的字典信息已经存在了", manage.getCode()));
         }
         if (!isRoot && StrUtil.isNotBlank(manage.getCode())) {
             throw new BadRequestException("子级字典信息的唯一标识码必须为空");

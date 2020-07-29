@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -36,6 +37,7 @@ class DictResourceTest {
     private static final String DEFAULT_NAME = "测试字典" + IdUtil.randomUUID();
     private static final String DEFAULT_CODE = "测试唯一标识码" + IdUtil.randomUUID();
     private static final String UPDATE_NAME = "测试字典" + IdUtil.randomUUID();
+    private static final String UPDATE_CODE = "测试唯一标识码" + IdUtil.randomUUID();
 
     @Autowired
     private MockMvc mvc;
@@ -165,9 +167,9 @@ class DictResourceTest {
         manage.setCode(DEFAULT_CODE);
         Dict prevDict = dictService.create(manage);
         DictManage updateManage = new DictManage();
-        updateManage.setId(prevDict.getId());
+        BeanUtils.copyProperties(prevDict, updateManage);
         updateManage.setName(UPDATE_NAME);
-        updateManage.setCode(prevDict.getCode());
+        updateManage.setCode(UPDATE_CODE);
         List<Dict> prevAll = dictRepository.findAll();
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.put("/api/dict")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -181,7 +183,7 @@ class DictResourceTest {
         Assertions.assertThat(currDict.getPid()).isEqualTo(prevDict.getPid());
         Assertions.assertThat(currDict.getLevel()).isEqualTo(prevDict.getLevel());
         Assertions.assertThat(currDict.getName()).isEqualTo(UPDATE_NAME);
-        Assertions.assertThat(currDict.getCode()).isEqualTo(prevDict.getCode());
+        Assertions.assertThat(currDict.getCode()).isEqualTo(UPDATE_CODE);
         Assertions.assertThat(currDict.getData()).isEqualTo(prevDict.getData());
         Assertions.assertThat(currDict.getDesc()).isEqualTo(prevDict.getDesc());
         Assertions.assertThat(currDict.getCreatedBy()).isEqualTo(prevDict.getCreatedBy());

@@ -43,6 +43,7 @@ public class PermissionVM extends AbstractIdAuditingVM {
     private Instant lastModifiedDate;
 
     public static PermissionVM adapt(Permission permission) {
+        if (permission == null) return null;
         PermissionVM vm = new PermissionVM();
         BeanUtils.copyProperties(permission, vm);
         return vm;

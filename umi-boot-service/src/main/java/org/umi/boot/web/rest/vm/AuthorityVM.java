@@ -45,6 +45,7 @@ public class AuthorityVM extends AbstractIdAuditingVM {
     private Instant lastModifiedDate;
 
     public static AuthorityVM adapt(Authority authority) {
+        if (authority == null) return null;
         AuthorityVM vm = new AuthorityVM();
         BeanUtils.copyProperties(authority, vm);
         vm.setCode(StringUtils.upperCase(StringUtils.replaceOnce(authority.getCode(), "ROLE_", "")));

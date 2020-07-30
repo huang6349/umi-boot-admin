@@ -40,6 +40,7 @@ public class DictVM extends AbstractIdAuditingVM {
     private Instant lastModifiedDate;
 
     public static DictVM adapt(Dict dict) {
+        if (dict == null) return null;
         DictVM vm = new DictVM();
         BeanUtils.copyProperties(dict, vm);
         return vm;

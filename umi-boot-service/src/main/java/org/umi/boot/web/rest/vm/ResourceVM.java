@@ -43,6 +43,7 @@ public class ResourceVM extends AbstractIdAuditingVM {
     private Instant lastModifiedDate;
 
     public static ResourceVM adapt(Resource resource) {
+        if (resource == null) return null;
         ResourceVM vm = new ResourceVM();
         BeanUtils.copyProperties(resource, vm);
         if (resource.getPermission() != null) {

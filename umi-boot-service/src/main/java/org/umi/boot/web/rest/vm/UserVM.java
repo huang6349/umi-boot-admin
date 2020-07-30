@@ -64,6 +64,7 @@ public class UserVM extends AbstractIdAuditingVM {
     private Instant lastModifiedDate;
 
     public static UserVM adapt(User user) {
+        if (user == null) return null;
         UserVM vm = new UserVM();
         BeanUtils.copyProperties(user, vm);
         if (user.getInfo() != null) {

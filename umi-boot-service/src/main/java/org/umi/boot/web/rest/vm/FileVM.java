@@ -44,6 +44,7 @@ public class FileVM extends AbstractIdAuditingVM {
     private Instant createdDate;
 
     public static FileVM adapt(File file) {
+        if (file == null) return null;
         FileVM vm = new FileVM();
         BeanUtils.copyProperties(file, vm);
         vm.setType(StrUtil.subAfter(file.getName(), ".", true));

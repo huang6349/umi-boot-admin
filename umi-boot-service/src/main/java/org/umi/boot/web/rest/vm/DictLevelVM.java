@@ -37,6 +37,7 @@ public class DictLevelVM extends AbstractLevelAuditingVM<DictLevelVM> {
     private Instant lastModifiedDate;
 
     public static DictLevelVM adapt(Dict dict) {
+        if (dict == null) return null;
         DictLevelVM vm = new DictLevelVM();
         BeanUtils.copyProperties(dict, vm);
         return vm;

@@ -40,6 +40,7 @@ public class PermissionLevelVM extends AbstractLevelAuditingVM<PermissionLevelVM
     private Instant lastModifiedDate;
 
     public static PermissionLevelVM adapt(Permission permission) {
+        if (permission == null) return null;
         PermissionLevelVM vm = new PermissionLevelVM();
         BeanUtils.copyProperties(permission, vm);
         return vm;

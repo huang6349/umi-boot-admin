@@ -18,11 +18,14 @@ import java.time.Instant;
 @AllArgsConstructor
 public class ResourceVM extends AbstractIdAuditingVM {
 
+    @ApiModelProperty("所属菜单")
+    private Long permissionId;
+
+    @ApiModelProperty("所属菜单（文字）")
+    private String permissionText;
+
     @ApiModelProperty("资源地址")
     private String pattern;
-
-    @ApiModelProperty("资源描述")
-    private String desc;
 
     @ApiModelProperty("资源类型")
     private Long methodId;
@@ -30,11 +33,8 @@ public class ResourceVM extends AbstractIdAuditingVM {
     @ApiModelProperty("资源类型（文字）")
     private String methodText;
 
-    @ApiModelProperty("所属菜单")
-    private Long permissionId;
-
-    @ApiModelProperty("所属菜单（文字）")
-    private String permissionText;
+    @ApiModelProperty("资源描述")
+    private String desc;
 
     @ApiModelProperty("最后修改人")
     private String lastModifiedBy;
@@ -45,13 +45,13 @@ public class ResourceVM extends AbstractIdAuditingVM {
     public static ResourceVM adapt(Resource resource) {
         ResourceVM vm = new ResourceVM();
         BeanUtils.copyProperties(resource, vm);
-        if (resource.getMethod() != null) {
-            vm.setMethodId(resource.getMethod().getId());
-            vm.setMethodText(resource.getMethod().getName());
-        }
         if (resource.getPermission() != null) {
             vm.setPermissionId(resource.getPermission().getId());
             vm.setPermissionText(resource.getPermission().getName());
+        }
+        if (resource.getMethod() != null) {
+            vm.setMethodId(resource.getMethod().getId());
+            vm.setMethodText(resource.getMethod().getName());
         }
         return vm;
     }

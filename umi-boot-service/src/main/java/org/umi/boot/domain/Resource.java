@@ -18,11 +18,15 @@ public class Resource extends AbstractIdAuditingEntity {
 
     private static final long serialVersionUID = 7896445883698741826L;
 
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "PERMISSION_ID")
+    @Where(clause = "DATA_STATE <> 0")
+    @NotFound(action = NotFoundAction.IGNORE)
+    private Permission permission;
+
     @Column(name = "RESOURCE_PATTERN", nullable = false)
     private String pattern;
-
-    @Column(name = "RESOURCE_DESC")
-    private String desc;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER)
@@ -31,10 +35,6 @@ public class Resource extends AbstractIdAuditingEntity {
     @NotFound(action = NotFoundAction.IGNORE)
     private Dict method;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "PERMISSION_ID")
-    @Where(clause = "DATA_STATE <> 0")
-    @NotFound(action = NotFoundAction.IGNORE)
-    private Permission permission;
+    @Column(name = "RESOURCE_DESC")
+    private String desc;
 }

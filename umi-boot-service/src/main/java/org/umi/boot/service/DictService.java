@@ -34,6 +34,13 @@ public class DictService {
         return dict.get();
     }
 
+    @Transactional(readOnly = true)
+    public Dict findById(Long id, Long pid, String errorMessage) {
+        Dict dict = findById(id, errorMessage);
+        if (!dict.getPid().equals(pid)) throw new BadRequestException(errorMessage);
+        return dict;
+    }
+
     public Dict create(DictManage manage) {
         boolean isRoot = manage.getPid() == null || manage.getPid().equals(0L);
         if (isRoot && StrUtil.isBlank(manage.getCode())) {

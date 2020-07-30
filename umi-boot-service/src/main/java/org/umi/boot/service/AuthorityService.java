@@ -98,6 +98,6 @@ public class AuthorityService {
     }
 
     private Set<Permission> setPermissions(Set<Long> permissionIds) {
-        return permissionIds.stream().map(permissionId -> permissionService.findById(permissionId, StrUtil.format("数据编号为【{}】的菜单信息不存在，无法进行菜单修改操作", permissionId))).collect(Collectors.toSet());
+        return permissionIds.stream().map(permissionId -> permissionService.findById(permissionId, StrUtil.format("数据编号为【{}】的菜单信息不存在，无法进行菜单赋值操作", permissionId))).collect(Collectors.toSet());
     }
 }

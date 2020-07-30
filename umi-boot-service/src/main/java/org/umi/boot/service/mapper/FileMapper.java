@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class FileMapper {
 
     public List<FileVM> adapt(List<File> files) {
-        return files.stream().filter(Objects::nonNull).map(this::adapt).collect(Collectors.toList());
+        return files.stream().filter(Objects::nonNull).distinct().map(this::adapt).collect(Collectors.toList());
     }
 
     public FileVM adapt(File file) {

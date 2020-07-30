@@ -4,17 +4,17 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.umi.boot.domain.User;
 
-import java.util.List;
+import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
-    List<User> findByUsername(String username);
+    Optional<User> findByUsername(String username);
 
-    List<User> findByEmail(String email);
+    Optional<User> findByEmail(String email);
 
-    List<User> findByMobilePhone(String mobilePhone);
+    Optional<User> findByMobilePhone(String mobilePhone);
 
-    List<User> findByEmailAndIdNot(String email, Long id);
+    Optional<User> findByEmailAndIdNot(String email, Long id);
 
-    List<User> findByMobilePhoneAndIdNot(String mobilePhone, Long id);
+    Optional<User> findByMobilePhoneAndIdNot(String mobilePhone, Long id);
 }

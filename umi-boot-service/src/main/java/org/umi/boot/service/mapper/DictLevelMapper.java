@@ -20,7 +20,7 @@ public class DictLevelMapper {
     }
 
     public List<DictLevelVM> adapt(List<Dict> dicts) {
-        return dicts.stream().filter(Objects::nonNull).map(this::adapt).collect(Collectors.toList());
+        return dicts.stream().filter(Objects::nonNull).distinct().map(this::adapt).collect(Collectors.toList());
     }
 
     public DictLevelVM adapt(Dict dict) {

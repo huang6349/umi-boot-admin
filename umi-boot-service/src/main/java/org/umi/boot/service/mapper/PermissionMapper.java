@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class PermissionMapper {
 
     public List<PermissionVM> adapt(List<Permission> permissions) {
-        return permissions.stream().filter(Objects::nonNull).map(this::adapt).collect(Collectors.toList());
+        return permissions.stream().filter(Objects::nonNull).distinct().map(this::adapt).collect(Collectors.toList());
     }
 
     public PermissionVM adapt(Permission permission) {

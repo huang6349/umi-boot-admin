@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class UserMapper {
 
     public List<UserVM> adapt(List<User> users) {
-        return users.stream().filter(Objects::nonNull).map(this::adapt).collect(Collectors.toList());
+        return users.stream().filter(Objects::nonNull).distinct().map(this::adapt).collect(Collectors.toList());
     }
 
     public UserVM adapt(User user) {

@@ -12,6 +12,8 @@ import org.umi.boot.commons.utils.LevelUtil;
 import org.umi.boot.config.GlobalConstants;
 import org.umi.boot.domain.Permission;
 import org.umi.boot.repository.PermissionRepository;
+import org.umi.boot.repository.UserRepository;
+import org.umi.boot.security.SecurityUtils;
 import org.umi.boot.web.rest.manage.PermissionManage;
 
 import java.util.Arrays;
@@ -24,6 +26,9 @@ import java.util.stream.Collectors;
 public class PermissionService {
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private PermissionRepository permissionRepository;
 
     @Transactional(readOnly = true)
@@ -32,6 +37,14 @@ public class PermissionService {
         Optional<Permission> permission = permissionRepository.findById(id);
         if (!permission.isPresent()) throw new BadRequestException(errorMessage);
         return permission.get();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Permission> getCurrentUserPermissions() {
+        return SecurityUtils.getCurrentUserUsername()
+                .flatMap(userRepository::findByUsername)
+                .map(user -> permissionRepository.findByAuthoritiesInOrderBySeqDesc(user.getAuthorities()))
+                .orElse(null);
     }
 
     public Permission create(PermissionManage manage) {

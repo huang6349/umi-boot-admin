@@ -12,6 +12,7 @@ import org.umi.boot.commons.exception.DataAlreadyExistException;
 import org.umi.boot.config.GlobalConstants;
 import org.umi.boot.domain.*;
 import org.umi.boot.repository.UserRepository;
+import org.umi.boot.security.SecurityUtils;
 import org.umi.boot.web.rest.manage.UserManage;
 
 import java.util.Arrays;
@@ -41,14 +42,19 @@ public class UserService {
         return user.get();
     }
 
+    @Transactional(readOnly = true)
+    public User getCurrentUser() {
+        return SecurityUtils.getCurrentUserUsername().flatMap(userRepository::findByUsername).orElse(null);
+    }
+
     public User create(UserManage manage) {
-        if (!userRepository.findByUsername(manage.getUsername()).isEmpty()) {
+        if (userRepository.findByUsername(manage.getUsername()).isPresent()) {
             throw new DataAlreadyExistException(StrUtil.format("帐号为【{}】的用户信息已经存在了", manage.getUsername()));
         }
-        if (manage.getEmail() != null && !userRepository.findByEmail(manage.getEmail()).isEmpty()) {
+        if (manage.getEmail() != null && userRepository.findByEmail(manage.getEmail()).isPresent()) {
             throw new DataAlreadyExistException(StrUtil.format("邮箱为【{}】的用户信息已经存在了", manage.getEmail()));
         }
-        if (manage.getMobilePhone() != null && !userRepository.findByMobilePhone(manage.getMobilePhone()).isEmpty()) {
+        if (manage.getMobilePhone() != null && userRepository.findByMobilePhone(manage.getMobilePhone()).isPresent()) {
             throw new DataAlreadyExistException(StrUtil.format("手机号为【{}】的用户信息已经存在了", manage.getMobilePhone()));
         }
         Dict sex = dictService.findById(manage.getSexId(), 10000L, StrUtil.format("数据编号为【{}】的性别类型不存在，无法进行新增操作", manage.getSexId()));
@@ -75,10 +81,10 @@ public class UserService {
         if (!StringUtils.equals(manage.getUsername(), user.getUsername())) {
             throw new BadRequestException("用户帐号不允许修改");
         }
-        if (manage.getEmail() != null && !userRepository.findByEmailAndIdNot(manage.getEmail(), manage.getId()).isEmpty()) {
+        if (manage.getEmail() != null && userRepository.findByEmailAndIdNot(manage.getEmail(), manage.getId()).isPresent()) {
             throw new DataAlreadyExistException(StrUtil.format("邮箱为【{}】的用户信息已经存在了", manage.getEmail()));
         }
-        if (manage.getMobilePhone() != null && !userRepository.findByMobilePhoneAndIdNot(manage.getMobilePhone(), manage.getId()).isEmpty()) {
+        if (manage.getMobilePhone() != null && userRepository.findByMobilePhoneAndIdNot(manage.getMobilePhone(), manage.getId()).isPresent()) {
             throw new DataAlreadyExistException(StrUtil.format("手机号为【{}】的用户信息已经存在了", manage.getMobilePhone()));
         }
         Dict sex = dictService.findById(manage.getSexId(), 10000L, StrUtil.format("数据编号为【{}】的性别类型不存在，无法进行修改操作", manage.getSexId()));

@@ -20,7 +20,7 @@ public class PermissionLevelMapper {
     }
 
     public List<PermissionLevelVM> adapt(List<Permission> permissions) {
-        return permissions.stream().filter(Objects::nonNull).map(this::adapt).collect(Collectors.toList());
+        return permissions.stream().filter(Objects::nonNull).distinct().map(this::adapt).collect(Collectors.toList());
     }
 
     public PermissionLevelVM adapt(Permission permission) {

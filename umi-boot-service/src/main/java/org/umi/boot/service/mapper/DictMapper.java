@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class DictMapper {
 
     public List<DictVM> adapt(List<Dict> dicts) {
-        return dicts.stream().filter(Objects::nonNull).map(this::adapt).collect(Collectors.toList());
+        return dicts.stream().filter(Objects::nonNull).distinct().map(this::adapt).collect(Collectors.toList());
     }
 
     public DictVM adapt(Dict dict) {

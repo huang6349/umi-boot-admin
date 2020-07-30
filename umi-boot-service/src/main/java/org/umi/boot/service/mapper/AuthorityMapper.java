@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class AuthorityMapper {
 
     public List<AuthorityVM> adapt(List<Authority> authorities) {
-        return authorities.stream().filter(Objects::nonNull).map(this::adapt).collect(Collectors.toList());
+        return authorities.stream().filter(Objects::nonNull).distinct().map(this::adapt).collect(Collectors.toList());
     }
 
     public AuthorityVM adapt(Authority authority) {

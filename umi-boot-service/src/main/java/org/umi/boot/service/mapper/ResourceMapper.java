@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 public class ResourceMapper {
 
     public List<ResourceVM> adapt(List<Resource> resources) {
-        return resources.stream().filter(Objects::nonNull).map(this::adapt).collect(Collectors.toList());
+        return resources.stream().filter(Objects::nonNull).distinct().map(this::adapt).collect(Collectors.toList());
     }
 
     public ResourceVM adapt(Resource resource) {

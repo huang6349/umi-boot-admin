@@ -27,14 +27,14 @@ public class UserVM extends AbstractIdAuditingVM {
     @ApiModelProperty("用户帐号")
     private String username;
 
-    @ApiModelProperty("用户昵称")
-    private String nickname;
-
     @ApiModelProperty("用户邮箱")
     private String email;
 
     @ApiModelProperty("用户手机号")
     private String mobilePhone;
+
+    @ApiModelProperty("用户昵称")
+    private String nickname;
 
     @ApiModelProperty("用户真实姓名")
     private String realname;
@@ -68,14 +68,11 @@ public class UserVM extends AbstractIdAuditingVM {
         BeanUtils.copyProperties(user, vm);
         if (user.getInfo() != null) {
             UserInfo info = user.getInfo();
-            vm.setNickname(info.getNickname());
-            vm.setRealname(info.getRealname());
+            BeanUtils.copyProperties(info, vm, "createdBy", "createdDate", "lastModifiedBy", "lastModifiedDate", "state", "id");
             if (info.getSex() != null) {
                 vm.setSexId(info.getSex().getId());
                 vm.setSexText(info.getSex().getName());
             }
-            vm.setBirthday(info.getBirthday());
-            vm.setIdCard(info.getIdCard());
         }
         vm.setAuthoritieIds(user.getAuthorities().stream().map(Authority::getId).collect(Collectors.toSet()));
         vm.setAuthoritieNames(user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet()));

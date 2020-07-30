@@ -18,7 +18,8 @@ export default defineConfig({
   targets: {
     ie: 11,
   },
-  title: 'umi-boot',
+  title: 'umi-boot-admin',
   ignoreMomentLocale: true,
   locale: {},
+  sula: { locale: { default: 'zh-CN' } },
 });

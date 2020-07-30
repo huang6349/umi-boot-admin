@@ -1,0 +1,81 @@
+@import '~antd/es/style/themes/default.less';
+
+.layout :global(.ant-pro-global-header) {
+  color: @text-color-dark;
+  background: @layout-header-background;
+}
+
+.layout :global(.ant-pro-top-nav-header) {
+  color: @text-color-dark;
+  background: @layout-header-background;
+}
+
+.layout :global(.ant-pro-top-nav-header) {
+  box-shadow: none;
+}
+
+.layout :global(.ant-pro-top-nav-header .ant-pro-top-nav-header-main) {
+  padding: 0;
+}
+
+.layout :global(.ant-pro-sider-menu-sider) {
+  box-shadow: none;
+  border-right: 1px solid #e7eaec;
+  overflow: auto;
+}
+
+.layout :global(.ant-pro-sider-menu-sider .ant-pro-sider-menu) {
+  padding-top: 0 !important;
+}
+
+.layout :global(.ant-pro-basicLayout-is-children) {
+  overflow: hidden;
+  height: 100vh;
+}
+
+.layout :global(.ant-pro-basicLayout-has-header .ant-pro-basicLayout-is-children) {
+  height: calc(100vh - @layout-header-height);
+}
+
+.layout :global(.ant-pro-page-header-wrap) {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.layout :global(.ant-pro-page-header-wrap .ant-pro-page-header-wrap-page-header-warp) {
+  border-bottom: 1px solid #e7eaec;
+}
+
+.layout :global(.ant-pro-page-header-wrap .ant-page-header) {
+  padding: 12px 24px;
+}
+
+.layout :global(.ant-pro-page-header-wrap .ant-pro-page-header-wrap-children-content) {
+  flex: 1;
+  margin: 0;
+  padding: 20px 24px 40px 24px;
+  overflow: auto;
+}
+
+.layout :global(.ant-pro-page-header-wrap.sula .ant-pro-page-header-wrap-children-content) {
+  padding: 0;
+}
+
+.layout :global(.ant-pro-page-header-wrap.sula .ant-table-container) {
+  border-top: 1px solid #f0f0f0;
+}
+
+.layout :global(.ant-pro-page-header-wrap.sula .ant-table-pagination.ant-pagination) {
+  margin-right: 24px;
+}
+
+.layout :global(.ant-pro-page-header-wrap.sula .ant-pagination-options-size-changer.ant-select) {
+  margin-right: 0;
+}

@@ -1,18 +1,18 @@
 import * as React from 'react';
 import ProLayout from '@ant-design/pro-layout';
-import { Link, useModel, history } from 'umi';
+import { Link, useModel } from 'umi';
 import isEmpty from 'lodash/isEmpty';
 
 import { MenuHeader, RightContent } from './components';
 import { loopMenu, pathsToRegexp } from './utils';
 import styles from './index.less';
 
-const BasicLayout = ({ children }) => {
+const BasicLayout = ({ location, children }) => {
   const { initialState: { username, menuData = [] } = {}, refresh } = useModel('@@initialState');
 
   const [collapsed, setCollapsed] = React.useState(!1);
 
-  const isPure = pathsToRegexp(['/', '/404'], history['location']['pathname']);
+  const isPure = pathsToRegexp(['/', '/404'], location['pathname']);
 
   function handlePoweroff() {
     alert('退出登录');
@@ -21,7 +21,7 @@ const BasicLayout = ({ children }) => {
   return (
     <ProLayout
       className={styles['layout']}
-      location={history['location']}
+      location={location}
       pure={isPure}
       menuHeaderRender={() => {
         return <MenuHeader title="umi-boot-admin" />;
@@ -37,7 +37,7 @@ const BasicLayout = ({ children }) => {
       disableContentMargin={!0}
     >
       <ProLayout
-        location={history['location']}
+        location={location}
         pure={isPure}
         contentStyle={{ position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, margin: 0 }}
         layout="sidemenu"

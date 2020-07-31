@@ -8,7 +8,7 @@ import { loopMenu, pathsToRegexp } from './utils';
 import styles from './index.less';
 
 const BasicLayout = ({ location, children }) => {
-  const { initialState: { username, menuData = [] } = {}, refresh } = useModel('@@initialState');
+  const { initialState: { username, menuData = [] } = {} } = useModel('@@initialState');
 
   const [collapsed, setCollapsed] = React.useState(!1);
 

@@ -1,21 +1,31 @@
 import * as React from 'react';
 import ProLayout from '@ant-design/pro-layout';
-import { Link, useModel } from 'umi';
+import { Link, useModel, history } from 'umi';
 import isEmpty from 'lodash/isEmpty';
 
 import { MenuHeader, RightContent } from './components';
 import { loopMenu, pathsToRegexp } from './utils';
+import { TokenManager } from '@/utils';
 import styles from './index.less';
 
 const BasicLayout = ({ location, children }) => {
-  const { initialState: { username, menuData = [] } = {} } = useModel('@@initialState');
+  const { initialState: { isLogin, username, menuData = [] } = {}, refresh } = useModel('@@initialState');
 
   const [collapsed, setCollapsed] = React.useState(!1);
 
-  const isPure = pathsToRegexp(['/', '/404'], location['pathname']);
+  const isPure = pathsToRegexp(['/', '/login', '/404'], location['pathname']);
+
+  React.useEffect(() => {
+    if (isLogin && pathsToRegexp(['/login'], location['pathname'])) {
+      history.replace('/');
+    }
+    if (!isLogin && !pathsToRegexp(['/login'], location['pathname'])) {
+      history.replace('/login');
+    }
+  }, [isLogin]);
 
   function handlePoweroff() {
-    alert('退出登录');
+    TokenManager['destroy']().then(() => refresh());
   }
 
   return (

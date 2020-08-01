@@ -40,6 +40,14 @@ public class ResourceService {
         return resource.get();
     }
 
+    @Transactional(readOnly = true)
+    public List<Resource> getCurrentUserResources() {
+        return permissionService.getCurrentUserPermissions()
+                .stream()
+                .flatMap(permission -> permission.getResources().stream())
+                .collect(Collectors.toList());
+    }
+
     public Resource create(ResourceAttribute attribute) {
         Permission permission = permissionService.findById(attribute.getPermissionId(), StrUtil.format("数据编号为【{}】的菜单信息不存在，无法进行新增操作", attribute.getPermissionId()));
         Dict method = dictService.findById(attribute.getMethodId(), 10100L, StrUtil.format("数据编号为【{}】的资源类型不存在，无法进行新增操作", attribute.getMethodId()));

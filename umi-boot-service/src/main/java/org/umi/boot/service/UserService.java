@@ -4,6 +4,7 @@ import cn.hutool.core.util.StrUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.umi.boot.commons.exception.BadRequestException;
@@ -12,6 +13,7 @@ import org.umi.boot.config.GlobalConstants;
 import org.umi.boot.domain.*;
 import org.umi.boot.repository.UserRepository;
 import org.umi.boot.security.SecurityUtils;
+import org.umi.boot.web.rest.manage.ChangePasswordAttribute;
 import org.umi.boot.web.rest.manage.UserAttribute;
 import org.umi.boot.web.rest.manage.UserIdAttribute;
 
@@ -33,6 +35,9 @@ public class UserService {
 
     @Autowired
     private DictService dictService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Transactional(readOnly = true)
     public User findById(Long id, String errorMessage) {
@@ -59,7 +64,7 @@ public class UserService {
         }
         Dict sex = dictService.findById(attribute.getSexId(), 10000L, StrUtil.format("数据编号为【{}】的性别类型不存在，无法进行新增操作", attribute.getSexId()));
         User user = UserAttribute.adapt(attribute);
-        user.setPassword("123456"); // TODO: 加密
+        user.setPassword(passwordEncoder.encode("123456"));
         UserInfo info = user.getInfo();
         info.setSex(sex);
         user.setInfo(info);
@@ -128,6 +133,31 @@ public class UserService {
             throw new BadRequestException("该用户为系统保留用户，无法进行禁用操作");
         }
         return updateState(user, GlobalConstants.DATA_DISABLED_STATE);
+    }
+
+    public User changePassword(ChangePasswordAttribute attribute) {
+        if (!StringUtils.equals(StringUtils.trimToNull(attribute.getNewPassword()), StringUtils.trimToNull(attribute.getConfirm()))) {
+            throw new BadRequestException("两次密码不一致，无法进行密码修改操作");
+        }
+        User user = getCurrentUser();
+        if (user == null) {
+            throw new BadRequestException("未授权的用户，无法进行密码修改操作");
+        }
+        if (!passwordEncoder.matches(attribute.getOldPassword(), user.getPassword())) {
+            throw new BadRequestException("请输入的旧密码不正确，无法进行密码修改操作");
+        }
+        user.setPassword(passwordEncoder.encode(attribute.getNewPassword()));
+        return userRepository.save(user);
+    }
+
+    public List<User> batchResetPassword(Long[] ids) {
+        return Arrays.stream(ids).map(this::resetPassword).collect(Collectors.toList());
+    }
+
+    public User resetPassword(Long id) {
+        User user = findById(id, StrUtil.format("数据编号为【{}】的用户信息不存在，无法进行重置密码操作", id));
+        user.setPassword(passwordEncoder.encode("123456"));
+        return userRepository.save(user);
     }
 
     private Set<Authority> setAuthorities(Set<Long> authoritieIds) {

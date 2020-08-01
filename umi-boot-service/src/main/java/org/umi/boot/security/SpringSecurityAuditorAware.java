@@ -13,7 +13,6 @@ public class SpringSecurityAuditorAware implements AuditorAware<String> {
     @Override
     @NonNull
     public Optional<String> getCurrentAuditor() {
-        // TODO: 获取当前用户的账号信息
-        return Optional.of(GlobalConstants.SYSTEM_ACCOUNT);
+        return Optional.of(SecurityUtils.getCurrentUserUsername().orElse(GlobalConstants.SYSTEM_ACCOUNT));
     }
 }

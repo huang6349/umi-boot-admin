@@ -89,6 +89,12 @@ public class UserResource {
         return Info.success(userMapper.adapt(userService.batchDisable(ids)));
     }
 
+    @ApiOperation(value = "重置一个或多个用户密码")
+    @PutMapping("/user/reset/password/{ids}")
+    public InfoStructure resetPassword(@PathVariable Long[] ids) {
+        return Info.success(userMapper.adapt(userService.batchResetPassword(ids)));
+    }
+
     @ApiOperation(value = "删除一个或多个用户")
     @DeleteMapping("/user/{ids}")
     public InfoStructure delete(@PathVariable Long[] ids) {

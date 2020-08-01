@@ -5,6 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.servlet.MultipartProperties;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -53,6 +55,20 @@ public class ExceptionHandling {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public InfoStructure handleMaxUploadSizeExceededException(final MaxUploadSizeExceededException e) {
         return Info.error(HttpStatus.BAD_REQUEST.toString(), StrUtil.format("上传失败，文件大小超出了最大限制（{}MB）", multipartProperties.getMaxFileSize().toMegabytes()), e.getClass().getName());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public InfoStructure handleBadCredentialsException(final BadCredentialsException e) {
+        return Info.error(HttpStatus.UNAUTHORIZED.toString(), "您输入的帐号或者密码不正确，请重试", e.getClass().getName());
+    }
+
+    @ExceptionHandler(InternalAuthenticationServiceException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public InfoStructure handleInternalAuthenticationServiceException(final InternalAuthenticationServiceException e) {
+        return Info.error(HttpStatus.UNAUTHORIZED.toString(), e.getMessage(), e.getClass().getName());
     }
 
     @ExceptionHandler(InternalServerErrorException.class)

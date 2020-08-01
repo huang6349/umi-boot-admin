@@ -1,6 +1,7 @@
 package org.umi.boot.service;
 
 import cn.hutool.core.util.StrUtil;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,7 +45,7 @@ public class PermissionService {
         return SecurityUtils.getCurrentUserUsername()
                 .flatMap(userRepository::findByUsername)
                 .map(user -> permissionRepository.findByAuthoritiesInOrderBySeqDesc(user.getAuthorities()))
-                .orElse(null);
+                .orElse(Lists.newArrayList());
     }
 
     public Permission create(PermissionAttribute attribute) {

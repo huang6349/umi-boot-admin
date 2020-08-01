@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -34,6 +36,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
+@WithMockUser(username = "admin", password = "123456")
 class UserResourceTest {
 
     private static final String DEFAULT_USERNAME = "Test" + RandomUtil.randomNumbers(10);
@@ -51,6 +54,9 @@ class UserResourceTest {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Test
     void create() throws Exception {
@@ -73,7 +79,7 @@ class UserResourceTest {
         Assertions.assertThat(user.getUsername()).isEqualTo(DEFAULT_USERNAME);
         Assertions.assertThat(user.getEmail()).isNull();
         Assertions.assertThat(user.getMobilePhone()).isNull();
-        Assertions.assertThat(user.getPassword()).isEqualTo("123456");
+        Assertions.assertThat(passwordEncoder.matches("123456", user.getPassword())).isTrue();
         Assertions.assertThat(user.getAuthorities()).hasSize(authoritieIds.size());
         Assertions.assertThat(user.getCreatedBy()).isNotNull();
         Assertions.assertThat(user.getCreatedDate()).isNotNull();
@@ -229,6 +235,30 @@ class UserResourceTest {
         User user2 = userService.create(attribute2);
         List<User> prevAll = userRepository.findAll();
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.put("/api/user/disable/" + user1.getId() + "," + user2.getId())
+                .accept(MediaType.APPLICATION_JSON));
+        actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
+        actions.andExpect(status().isOk()).andDo(print());
+        List<User> currAll = userRepository.findAll();
+        Assertions.assertThat(currAll).hasSize(prevAll.size());
+    }
+
+    @Test
+    void resetPassword() throws Exception {
+        Set<Long> authoritieIds = Sets.newHashSet(10000L);
+        UserAttribute attribute1 = new UserAttribute();
+        attribute1.setUsername("Test" + RandomUtil.randomNumbers(10));
+        attribute1.setNickname(DEFAULT_NICKNAME);
+        attribute1.setSexId(10001L);
+        attribute1.setAuthoritieIds(authoritieIds);
+        User user1 = userService.create(attribute1);
+        UserAttribute attribute2 = new UserAttribute();
+        attribute2.setUsername("Test" + RandomUtil.randomNumbers(10));
+        attribute2.setNickname(DEFAULT_NICKNAME);
+        attribute2.setSexId(10002L);
+        attribute2.setAuthoritieIds(authoritieIds);
+        User user2 = userService.create(attribute2);
+        List<User> prevAll = userRepository.findAll();
+        ResultActions actions = mvc.perform(MockMvcRequestBuilders.put("/api/user/reset/password/" + user1.getId() + "," + user2.getId())
                 .accept(MediaType.APPLICATION_JSON));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
         actions.andExpect(status().isOk()).andDo(print());

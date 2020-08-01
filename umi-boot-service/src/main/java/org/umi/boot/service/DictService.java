@@ -2,7 +2,6 @@ package org.umi.boot.service;
 
 import cn.hutool.core.util.StrUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +11,8 @@ import org.umi.boot.commons.utils.LevelUtil;
 import org.umi.boot.config.GlobalConstants;
 import org.umi.boot.domain.Dict;
 import org.umi.boot.repository.DictRepository;
-import org.umi.boot.web.rest.manage.DictManage;
+import org.umi.boot.web.rest.manage.DictAttribute;
+import org.umi.boot.web.rest.manage.DictIdAttribute;
 
 import java.util.Arrays;
 import java.util.List;
@@ -41,70 +41,69 @@ public class DictService {
         return dict;
     }
 
-    public Dict create(DictManage manage) {
-        boolean isRoot = manage.getPid() == null || manage.getPid().equals(0L);
-        if (isRoot && StrUtil.isBlank(manage.getCode())) {
+    public Dict create(DictAttribute attribute) {
+        boolean isRoot = attribute.getPid() == null || attribute.getPid().equals(0L);
+        if (isRoot && StrUtil.isBlank(attribute.getCode())) {
             throw new BadRequestException("一级字典信息的唯一标识码不能为空");
         }
-        if (isRoot && StrUtil.isNotBlank(manage.getData())) {
+        if (isRoot && StrUtil.isNotBlank(attribute.getData())) {
             throw new BadRequestException("一级字典信息的数据必须为空");
         }
-        if (isRoot && !dictRepository.findByCode(manage.getCode()).isEmpty()) {
-            throw new DataAlreadyExistException(StrUtil.format("唯一标识码为【{}】的字典信息已经存在了", manage.getCode()));
+        if (isRoot && !dictRepository.findByCode(attribute.getCode()).isEmpty()) {
+            throw new DataAlreadyExistException(StrUtil.format("唯一标识码为【{}】的字典信息已经存在了", attribute.getCode()));
         }
-        if (!isRoot && StrUtil.isNotBlank(manage.getCode())) {
+        if (!isRoot && StrUtil.isNotBlank(attribute.getCode())) {
             throw new BadRequestException("子级字典信息的唯一标识码必须为空");
         }
-        if (!isRoot && StrUtil.isBlank(manage.getData())) {
+        if (!isRoot && StrUtil.isBlank(attribute.getData())) {
             throw new BadRequestException("子级字典信息的数据不能为空");
         }
-        Dict dict = new Dict();
-        BeanUtils.copyProperties(manage, dict);
+        Dict dict = DictAttribute.adapt(attribute);
         dict.setState(GlobalConstants.DATA_NORMAL_STATE);
-        dict.setLevel(LevelUtil.calculateLevel(getLevel(manage.getPid()), manage.getPid()));
+        dict.setLevel(LevelUtil.calculateLevel(getLevel(attribute.getPid()), attribute.getPid()));
         return dictRepository.save(dict);
     }
 
-    public Dict update(DictManage manage) {
-        Dict dict = findById(manage.getId(), StrUtil.format("数据编号为【{}】的字典信息不存在，无法进行修改操作", manage.getId()));
+    public Dict update(DictIdAttribute attribute) {
+        Dict dict = findById(attribute.getId(), StrUtil.format("数据编号为【{}】的字典信息不存在，无法进行修改操作", attribute.getId()));
         if (GlobalConstants.DATA_KEEP_STATE.equals(dict.getState())) {
-            if (!StrUtil.equals(StrUtil.trimToNull(manage.getName()), StrUtil.trimToNull(dict.getName()))) {
+            if (!StrUtil.equals(StrUtil.trimToNull(attribute.getName()), StrUtil.trimToNull(dict.getName()))) {
                 throw new BadRequestException("该字典为系统保留字典，无法进行名称修改操作");
             }
-            if (!StrUtil.equals(StrUtil.trimToNull(manage.getCode()), StrUtil.trimToNull(dict.getCode()))) {
+            if (!StrUtil.equals(StrUtil.trimToNull(attribute.getCode()), StrUtil.trimToNull(dict.getCode()))) {
                 throw new BadRequestException("该字典为系统保留字典，无法进行唯一标识码修改操作");
             }
-            if (!StrUtil.equals(StrUtil.trimToNull(manage.getData()), StrUtil.trimToNull(dict.getData()))) {
+            if (!StrUtil.equals(StrUtil.trimToNull(attribute.getData()), StrUtil.trimToNull(dict.getData()))) {
                 throw new BadRequestException("该字典为系统保留字典，无法进行数据修改操作");
             }
         }
-        boolean isRoot = manage.getPid() == null || manage.getPid().equals(0L);
-        if (isRoot && StringUtils.isBlank(manage.getCode())) {
+        boolean isRoot = attribute.getPid() == null || attribute.getPid().equals(0L);
+        if (isRoot && StringUtils.isBlank(attribute.getCode())) {
             throw new BadRequestException("一级字典信息的唯一标识码不能为空");
         }
-        if (isRoot && StringUtils.isNotBlank(manage.getData())) {
+        if (isRoot && StringUtils.isNotBlank(attribute.getData())) {
             throw new BadRequestException("一级字典信息的数据必须为空");
         }
-        if (isRoot && !dictRepository.findByCodeAndIdNot(manage.getCode(), dict.getId()).isEmpty()) {
-            throw new DataAlreadyExistException(StrUtil.format("唯一标识码为【{}】的信息已经存在了", manage.getCode()));
+        if (isRoot && !dictRepository.findByCodeAndIdNot(attribute.getCode(), dict.getId()).isEmpty()) {
+            throw new DataAlreadyExistException(StrUtil.format("唯一标识码为【{}】的信息已经存在了", attribute.getCode()));
         }
-        if (!isRoot && StringUtils.isNotBlank(manage.getCode())) {
+        if (!isRoot && StringUtils.isNotBlank(attribute.getCode())) {
             throw new BadRequestException("子级字典信息的唯一标识码必须为空");
         }
-        if (!isRoot && StringUtils.isBlank(manage.getData())) {
+        if (!isRoot && StringUtils.isBlank(attribute.getData())) {
             throw new BadRequestException("子级字典信息的数据不能为空");
         }
         String beforeLevel = dict.getLevel();
-        String afterLevel = LevelUtil.calculateLevel(getLevel(manage.getPid()), manage.getPid());
-        if (StringUtils.startsWith(afterLevel, LevelUtil.calculateLevel(beforeLevel, manage.getId()))) {
+        String afterLevel = LevelUtil.calculateLevel(getLevel(attribute.getPid()), attribute.getPid());
+        if (StringUtils.startsWith(afterLevel, LevelUtil.calculateLevel(beforeLevel, attribute.getId()))) {
             throw new BadRequestException("不允许将自己设置为自己的子级");
         }
-        BeanUtils.copyProperties(manage, dict);
+        Dict updateDict = DictIdAttribute.adapt(attribute, dict);
         if (!StringUtils.equals(beforeLevel, afterLevel)) {
-            dict.setLevel(afterLevel);
-            batchUpdateLevel(beforeLevel, afterLevel, manage.getId());
+            updateDict.setLevel(afterLevel);
+            batchUpdateLevel(beforeLevel, afterLevel, attribute.getId());
         }
-        return dictRepository.save(dict);
+        return dictRepository.save(updateDict);
     }
 
     public List<Dict> batchDelete(Long[] ids) {

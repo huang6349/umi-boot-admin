@@ -14,7 +14,7 @@ import org.umi.boot.service.mapper.PermissionLevelMapper;
 import org.umi.boot.service.mapper.PermissionMapper;
 import org.umi.boot.service.mapper.UserMapper;
 
-@Api(tags = "帐号管理")
+@Api(tags = "帐号管理", value = "AccountResource")
 @RestController
 @RequestMapping("/api")
 public class AccountResource {
@@ -34,19 +34,19 @@ public class AccountResource {
     @Autowired
     private PermissionLevelMapper permissionLevelMapper;
 
-    @ApiOperation("获取当前用户信息")
+    @ApiOperation(value = "获取当前用户信息")
     @GetMapping("/account")
     public InfoStructure account() {
         return Info.success(userMapper.adapt(userService.getCurrentUser()));
     }
 
-    @ApiOperation("获取当前用户权限")
+    @ApiOperation(value = "获取当前用户权限")
     @GetMapping("/authorities")
     public InfoStructure authorities() {
         return Info.success(permissionMapper.adapt(permissionService.getCurrentUserPermissions()));
     }
 
-    @ApiOperation("获取当前用户权限（树形数据）")
+    @ApiOperation(value = "获取当前用户权限（树形数据）")
     @GetMapping("/authorities/tree")
     public InfoStructure authoritiesToTree() {
         return Info.success(permissionLevelMapper.adaptToTree(permissionService.getCurrentUserPermissions()));

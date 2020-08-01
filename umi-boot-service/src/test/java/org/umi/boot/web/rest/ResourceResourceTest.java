@@ -19,7 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.umi.boot.domain.Resource;
 import org.umi.boot.repository.ResourceRepository;
 import org.umi.boot.service.ResourceService;
-import org.umi.boot.web.rest.manage.ResourceManage;
+import org.umi.boot.web.rest.manage.ResourceAttribute;
+import org.umi.boot.web.rest.manage.ResourceIdAttribute;
 
 import java.util.List;
 
@@ -49,14 +50,14 @@ class ResourceResourceTest {
 
     @Test
     void create() throws Exception {
-        ResourceManage manage = new ResourceManage();
-        manage.setPermissionId(10010L);
-        manage.setPattern(DEFAULT_PATTERN);
-        manage.setMethodId(10101L);
+        ResourceAttribute attribute = new ResourceAttribute();
+        attribute.setPermissionId(10010L);
+        attribute.setPattern(DEFAULT_PATTERN);
+        attribute.setMethodId(10101L);
         List<Resource> prevAll = resourceRepository.findAll();
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.post("/api/resource")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(manage)));
+                .content(objectMapper.writeValueAsString(attribute)));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
         actions.andExpect(status().isOk()).andDo(print());
         List<Resource> currAll = resourceRepository.findAll();
@@ -75,11 +76,11 @@ class ResourceResourceTest {
 
     @Test
     void query() throws Exception {
-        ResourceManage manage = new ResourceManage();
-        manage.setPermissionId(10010L);
-        manage.setPattern(DEFAULT_PATTERN);
-        manage.setMethodId(10101L);
-        resourceService.create(manage);
+        ResourceAttribute attribute = new ResourceAttribute();
+        attribute.setPermissionId(10010L);
+        attribute.setPattern(DEFAULT_PATTERN);
+        attribute.setMethodId(10101L);
+        resourceService.create(attribute);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/resource")
                 .accept(MediaType.APPLICATION_JSON));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
@@ -88,11 +89,11 @@ class ResourceResourceTest {
 
     @Test
     void queryById() throws Exception {
-        ResourceManage manage = new ResourceManage();
-        manage.setPermissionId(10010L);
-        manage.setPattern(DEFAULT_PATTERN);
-        manage.setMethodId(10101L);
-        Resource resource = resourceService.create(manage);
+        ResourceAttribute attribute = new ResourceAttribute();
+        attribute.setPermissionId(10010L);
+        attribute.setPattern(DEFAULT_PATTERN);
+        attribute.setMethodId(10101L);
+        Resource resource = resourceService.create(attribute);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/resource/" + resource.getId())
                 .accept(MediaType.APPLICATION_JSON));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
@@ -101,11 +102,11 @@ class ResourceResourceTest {
 
     @Test
     void queryByPageable() throws Exception {
-        ResourceManage manage = new ResourceManage();
-        manage.setPermissionId(10010L);
-        manage.setPattern(DEFAULT_PATTERN);
-        manage.setMethodId(10101L);
-        resourceService.create(manage);
+        ResourceAttribute attribute = new ResourceAttribute();
+        attribute.setPermissionId(10010L);
+        attribute.setPattern(DEFAULT_PATTERN);
+        attribute.setMethodId(10101L);
+        resourceService.create(attribute);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/resource/pageable")
                 .param("page", "0")
                 .param("size", "20")
@@ -116,20 +117,20 @@ class ResourceResourceTest {
 
     @Test
     void update() throws Exception {
-        ResourceManage manage = new ResourceManage();
-        manage.setPermissionId(10010L);
-        manage.setPattern(DEFAULT_PATTERN);
-        manage.setMethodId(10101L);
-        Resource prevResource = resourceService.create(manage);
-        ResourceManage updateManage = new ResourceManage();
-        BeanUtils.copyProperties(prevResource, updateManage);
-        updateManage.setPermissionId(prevResource.getPermission().getId());
-        updateManage.setPattern(UPDATE_PATTERN);
-        updateManage.setMethodId(prevResource.getMethod().getId());
+        ResourceAttribute attribute = new ResourceAttribute();
+        attribute.setPermissionId(10010L);
+        attribute.setPattern(DEFAULT_PATTERN);
+        attribute.setMethodId(10101L);
+        Resource prevResource = resourceService.create(attribute);
+        ResourceIdAttribute updateattribute = new ResourceIdAttribute();
+        BeanUtils.copyProperties(prevResource, updateattribute);
+        updateattribute.setPermissionId(prevResource.getPermission().getId());
+        updateattribute.setPattern(UPDATE_PATTERN);
+        updateattribute.setMethodId(prevResource.getMethod().getId());
         List<Resource> prevAll = resourceRepository.findAll();
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.put("/api/resource")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateManage)));
+                .content(objectMapper.writeValueAsString(updateattribute)));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
         actions.andExpect(status().isOk()).andDo(print());
         List<Resource> currAll = resourceRepository.findAll();
@@ -148,16 +149,16 @@ class ResourceResourceTest {
 
     @Test
     void delete() throws Exception {
-        ResourceManage manage1 = new ResourceManage();
-        manage1.setPermissionId(10010L);
-        manage1.setPattern(RandomUtil.randomString(12));
-        manage1.setMethodId(10101L);
-        Resource resource1 = resourceService.create(manage1);
-        ResourceManage manage2 = new ResourceManage();
-        manage2.setPermissionId(10010L);
-        manage2.setPattern(RandomUtil.randomString(12));
-        manage2.setMethodId(10101L);
-        Resource resource2 = resourceService.create(manage2);
+        ResourceAttribute attribute1 = new ResourceAttribute();
+        attribute1.setPermissionId(10010L);
+        attribute1.setPattern(RandomUtil.randomString(12));
+        attribute1.setMethodId(10101L);
+        Resource resource1 = resourceService.create(attribute1);
+        ResourceAttribute attribute2 = new ResourceAttribute();
+        attribute2.setPermissionId(10010L);
+        attribute2.setPattern(RandomUtil.randomString(12));
+        attribute2.setMethodId(10101L);
+        Resource resource2 = resourceService.create(attribute2);
         List<Resource> prevAll = resourceRepository.findAll();
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.delete("/api/resource/" + resource1.getId() + "," + resource2.getId())
                 .accept(MediaType.APPLICATION_JSON));

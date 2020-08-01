@@ -21,7 +21,8 @@ import org.umi.boot.commons.utils.LevelUtil;
 import org.umi.boot.domain.Dict;
 import org.umi.boot.repository.DictRepository;
 import org.umi.boot.service.DictService;
-import org.umi.boot.web.rest.manage.DictManage;
+import org.umi.boot.web.rest.manage.DictAttribute;
+import org.umi.boot.web.rest.manage.DictIdAttribute;
 
 import java.util.List;
 
@@ -54,12 +55,12 @@ class DictResourceTest {
     @Test
     void create() throws Exception {
         List<Dict> prevAll = dictRepository.findAll();
-        DictManage manage = new DictManage();
-        manage.setName(DEFAULT_NAME);
-        manage.setCode(DEFAULT_CODE);
+        DictAttribute attribute = new DictAttribute();
+        attribute.setName(DEFAULT_NAME);
+        attribute.setCode(DEFAULT_CODE);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.post("/api/dict")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(manage)));
+                .content(objectMapper.writeValueAsString(attribute)));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
         actions.andExpect(status().isOk()).andDo(print());
         List<Dict> currAll = dictRepository.findAll();
@@ -80,10 +81,10 @@ class DictResourceTest {
 
     @Test
     void query() throws Exception {
-        DictManage manage = new DictManage();
-        manage.setName(DEFAULT_NAME);
-        manage.setCode(DEFAULT_CODE);
-        dictService.create(manage);
+        DictAttribute attribute = new DictAttribute();
+        attribute.setName(DEFAULT_NAME);
+        attribute.setCode(DEFAULT_CODE);
+        dictService.create(attribute);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/dict")
                 .accept(MediaType.APPLICATION_JSON));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
@@ -92,20 +93,20 @@ class DictResourceTest {
 
     @Test
     void queryToTree() throws Exception {
-        DictManage manage = new DictManage();
-        manage.setName(DEFAULT_NAME);
-        manage.setCode(DEFAULT_CODE);
-        Dict dict = dictService.create(manage);
-        DictManage manage1 = new DictManage();
-        manage1.setPid(dict.getId());
-        manage1.setName(RandomUtil.randomString(12));
-        manage1.setData(RandomUtil.randomString(12));
-        dictService.create(manage1);
-        DictManage manage2 = new DictManage();
-        manage2.setPid(dict.getId());
-        manage2.setName(RandomUtil.randomString(12));
-        manage2.setData(RandomUtil.randomString(12));
-        dictService.create(manage2);
+        DictAttribute attribute = new DictAttribute();
+        attribute.setName(DEFAULT_NAME);
+        attribute.setCode(DEFAULT_CODE);
+        Dict dict = dictService.create(attribute);
+        DictAttribute attribute1 = new DictAttribute();
+        attribute1.setPid(dict.getId());
+        attribute1.setName(RandomUtil.randomString(12));
+        attribute1.setData(RandomUtil.randomString(12));
+        dictService.create(attribute1);
+        DictAttribute attribute2 = new DictAttribute();
+        attribute2.setPid(dict.getId());
+        attribute2.setName(RandomUtil.randomString(12));
+        attribute2.setData(RandomUtil.randomString(12));
+        dictService.create(attribute2);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/dict/tree")
                 .accept(MediaType.APPLICATION_JSON));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
@@ -114,10 +115,10 @@ class DictResourceTest {
 
     @Test
     void queryById() throws Exception {
-        DictManage manage = new DictManage();
-        manage.setName(DEFAULT_NAME);
-        manage.setCode(DEFAULT_CODE);
-        Dict dict = dictService.create(manage);
+        DictAttribute attribute = new DictAttribute();
+        attribute.setName(DEFAULT_NAME);
+        attribute.setCode(DEFAULT_CODE);
+        Dict dict = dictService.create(attribute);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/dict/" + dict.getId())
                 .accept(MediaType.APPLICATION_JSON));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
@@ -126,20 +127,20 @@ class DictResourceTest {
 
     @Test
     void queryToChildren() throws Exception {
-        DictManage manage = new DictManage();
-        manage.setName(DEFAULT_NAME);
-        manage.setCode(DEFAULT_CODE);
-        Dict dict = dictService.create(manage);
-        DictManage manage1 = new DictManage();
-        manage1.setPid(dict.getId());
-        manage1.setName(RandomUtil.randomString(12));
-        manage1.setData(RandomUtil.randomString(12));
-        dictService.create(manage1);
-        DictManage manage2 = new DictManage();
-        manage2.setPid(dict.getId());
-        manage2.setName(RandomUtil.randomString(12));
-        manage2.setData(RandomUtil.randomString(12));
-        dictService.create(manage2);
+        DictAttribute attribute = new DictAttribute();
+        attribute.setName(DEFAULT_NAME);
+        attribute.setCode(DEFAULT_CODE);
+        Dict dict = dictService.create(attribute);
+        DictAttribute attribute1 = new DictAttribute();
+        attribute1.setPid(dict.getId());
+        attribute1.setName(RandomUtil.randomString(12));
+        attribute1.setData(RandomUtil.randomString(12));
+        dictService.create(attribute1);
+        DictAttribute attribute2 = new DictAttribute();
+        attribute2.setPid(dict.getId());
+        attribute2.setName(RandomUtil.randomString(12));
+        attribute2.setData(RandomUtil.randomString(12));
+        dictService.create(attribute2);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/dict/children/" + dict.getId())
                 .accept(MediaType.APPLICATION_JSON));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
@@ -148,10 +149,10 @@ class DictResourceTest {
 
     @Test
     void queryByPageable() throws Exception {
-        DictManage manage = new DictManage();
-        manage.setName(DEFAULT_NAME);
-        manage.setCode(DEFAULT_CODE);
-        dictService.create(manage);
+        DictAttribute attribute = new DictAttribute();
+        attribute.setName(DEFAULT_NAME);
+        attribute.setCode(DEFAULT_CODE);
+        dictService.create(attribute);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/dict/pageable")
                 .param("page", "0")
                 .param("size", "20")
@@ -162,18 +163,18 @@ class DictResourceTest {
 
     @Test
     void update() throws Exception {
-        DictManage manage = new DictManage();
-        manage.setName(DEFAULT_NAME);
-        manage.setCode(DEFAULT_CODE);
-        Dict prevDict = dictService.create(manage);
-        DictManage updateManage = new DictManage();
-        BeanUtils.copyProperties(prevDict, updateManage);
-        updateManage.setName(UPDATE_NAME);
-        updateManage.setCode(UPDATE_CODE);
+        DictAttribute attribute = new DictAttribute();
+        attribute.setName(DEFAULT_NAME);
+        attribute.setCode(DEFAULT_CODE);
+        Dict prevDict = dictService.create(attribute);
+        DictIdAttribute updateattribute = new DictIdAttribute();
+        BeanUtils.copyProperties(prevDict, updateattribute);
+        updateattribute.setName(UPDATE_NAME);
+        updateattribute.setCode(UPDATE_CODE);
         List<Dict> prevAll = dictRepository.findAll();
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.put("/api/dict")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateManage)));
+                .content(objectMapper.writeValueAsString(updateattribute)));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
         actions.andExpect(status().isOk()).andDo(print());
         List<Dict> currAll = dictRepository.findAll();
@@ -194,14 +195,14 @@ class DictResourceTest {
 
     @Test
     void delete() throws Exception {
-        DictManage manage1 = new DictManage();
-        manage1.setName(RandomUtil.randomString(12));
-        manage1.setCode(RandomUtil.randomString(12));
-        Dict dict1 = dictService.create(manage1);
-        DictManage manage2 = new DictManage();
-        manage2.setName(RandomUtil.randomString(12));
-        manage2.setCode(RandomUtil.randomString(12));
-        Dict dict2 = dictService.create(manage2);
+        DictAttribute attribute1 = new DictAttribute();
+        attribute1.setName(RandomUtil.randomString(12));
+        attribute1.setCode(RandomUtil.randomString(12));
+        Dict dict1 = dictService.create(attribute1);
+        DictAttribute attribute2 = new DictAttribute();
+        attribute2.setName(RandomUtil.randomString(12));
+        attribute2.setCode(RandomUtil.randomString(12));
+        Dict dict2 = dictService.create(attribute2);
         List<Dict> prevAll = dictRepository.findAll();
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.delete("/api/dict/" + dict1.getId() + "," + dict2.getId())
                 .accept(MediaType.APPLICATION_JSON));

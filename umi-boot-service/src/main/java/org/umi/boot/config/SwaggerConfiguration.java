@@ -1,9 +1,12 @@
 package org.umi.boot.config;
 
+import com.github.xiaoymin.knife4j.spring.annotations.EnableKnife4j;
 import com.google.common.collect.Lists;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.context.annotation.Import;
+import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 import springfox.documentation.builders.ApiInfoBuilder;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
@@ -17,11 +20,13 @@ import java.util.List;
 
 @Configuration
 @EnableSwagger2
-@Profile({"dev", "test"})
+@EnableKnife4j
+@Import(BeanValidatorPluginsConfiguration.class)
+@ConditionalOnProperty(value = {"knife4j.enable"}, matchIfMissing = true)
 public class SwaggerConfiguration {
 
     @Bean
-    public Docket create() {
+    public Docket defaultApi() {
         return new Docket(DocumentationType.SWAGGER_2)
                 .groupName("默认分组")
                 .apiInfo(apiInfo())
@@ -37,7 +42,7 @@ public class SwaggerConfiguration {
         return new ApiInfoBuilder().title("接口文档")
                 .description("无")
                 .termsOfServiceUrl("/")
-                .contact(new Contact("H", "https://www.yuque.com/huang6349", "252683858@qq.com"))
+                .contact(new Contact("huangyalong", "https://www.yuque.com/huang6349", "252683858@qq.com"))
                 .version("1.0.0")
                 .build();
     }

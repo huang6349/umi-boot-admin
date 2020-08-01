@@ -19,11 +19,11 @@ import org.umi.boot.domain.File;
 import org.umi.boot.repository.FileRepository;
 import org.umi.boot.service.FileService;
 import org.umi.boot.service.mapper.FileMapper;
-import org.umi.boot.web.rest.filters.FileFilters;
+import org.umi.boot.web.rest.query.FileFilter;
 
 import javax.servlet.http.HttpServletResponse;
 
-@Api(tags = "文件管理")
+@Api(tags = "文件管理", value = "FileResource")
 @RestController
 @RequestMapping("/api")
 public class FileResource {
@@ -37,36 +37,36 @@ public class FileResource {
     @Autowired
     private FileMapper fileMapper;
 
-    @ApiOperation("查询所有的文件")
+    @ApiOperation(value = "查询所有的文件")
     @GetMapping("/file")
     public InfoStructure query() {
         return Info.success(fileMapper.adapt(fileRepository.findAll()));
     }
 
-    @ApiOperation("查询一个文件")
+    @ApiOperation(value = "查询一个文件")
     @GetMapping("/file/{id}")
     public InfoStructure query(@PathVariable Long id) {
         return Info.success(fileMapper.adapt(fileRepository.findById(id).orElse(null)));
     }
 
-    @ApiOperation("分页查询文件")
+    @ApiOperation(value = "分页查询文件")
     @GetMapping("/file/pageable")
     public InfoStructure query(@PageableDefault(sort = "id", direction = Sort.Direction.DESC) Pageable pageable, String filters) {
-        FileFilters fileFilters = JSONUtil.toBean(filters, FileFilters.class);
+        FileFilter fileFilter = JSONUtil.toBean(filters, FileFilter.class);
         Specification<File> specification = Specifications.<File>and()
-                .like(StringUtils.isNotBlank(fileFilters.getName()), "name", "%" + StringUtils.trim(fileFilters.getName()) + "%")
-                .like(StringUtils.isNotBlank(fileFilters.getCreatedBy()), "createdBy", "%" + StringUtils.trim(fileFilters.getCreatedBy()) + "%")
+                .like(StringUtils.isNotBlank(fileFilter.getName()), "name", "%" + StringUtils.trim(fileFilter.getName()) + "%")
+                .like(StringUtils.isNotBlank(fileFilter.getCreatedBy()), "createdBy", "%" + StringUtils.trim(fileFilter.getCreatedBy()) + "%")
                 .build();
         return Info.success(fileRepository.findAll(specification, pageable).map(fileMapper::adapt));
     }
 
-    @ApiOperation("上传文件")
+    @ApiOperation(value = "上传文件")
     @PostMapping(value = "/file/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public InfoStructure local(@RequestParam("file") MultipartFile file) {
         return Info.success(fileMapper.adapt(fileService.create(file)));
     }
 
-    @ApiOperation("下载文件")
+    @ApiOperation(value = "下载文件")
     @GetMapping("/file/download/{id}")
     public void local(HttpServletResponse response, @PathVariable Long id) {
         fileService.download(response, id);

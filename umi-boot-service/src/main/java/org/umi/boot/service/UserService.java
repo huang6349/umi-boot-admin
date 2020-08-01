@@ -3,7 +3,6 @@ package org.umi.boot.service;
 import cn.hutool.core.util.StrUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +12,8 @@ import org.umi.boot.config.GlobalConstants;
 import org.umi.boot.domain.*;
 import org.umi.boot.repository.UserRepository;
 import org.umi.boot.security.SecurityUtils;
-import org.umi.boot.web.rest.manage.UserManage;
+import org.umi.boot.web.rest.manage.UserAttribute;
+import org.umi.boot.web.rest.manage.UserIdAttribute;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,54 +47,51 @@ public class UserService {
         return SecurityUtils.getCurrentUserUsername().flatMap(userRepository::findByUsername).orElse(null);
     }
 
-    public User create(UserManage manage) {
-        if (userRepository.findByUsername(manage.getUsername()).isPresent()) {
-            throw new DataAlreadyExistException(StrUtil.format("帐号为【{}】的用户信息已经存在了", manage.getUsername()));
+    public User create(UserAttribute attribute) {
+        if (userRepository.findByUsername(attribute.getUsername()).isPresent()) {
+            throw new DataAlreadyExistException(StrUtil.format("帐号为【{}】的用户信息已经存在了", attribute.getUsername()));
         }
-        if (manage.getEmail() != null && userRepository.findByEmail(manage.getEmail()).isPresent()) {
-            throw new DataAlreadyExistException(StrUtil.format("邮箱为【{}】的用户信息已经存在了", manage.getEmail()));
+        if (attribute.getEmail() != null && userRepository.findByEmail(attribute.getEmail()).isPresent()) {
+            throw new DataAlreadyExistException(StrUtil.format("邮箱为【{}】的用户信息已经存在了", attribute.getEmail()));
         }
-        if (manage.getMobilePhone() != null && userRepository.findByMobilePhone(manage.getMobilePhone()).isPresent()) {
-            throw new DataAlreadyExistException(StrUtil.format("手机号为【{}】的用户信息已经存在了", manage.getMobilePhone()));
+        if (attribute.getMobilePhone() != null && userRepository.findByMobilePhone(attribute.getMobilePhone()).isPresent()) {
+            throw new DataAlreadyExistException(StrUtil.format("手机号为【{}】的用户信息已经存在了", attribute.getMobilePhone()));
         }
-        Dict sex = dictService.findById(manage.getSexId(), 10000L, StrUtil.format("数据编号为【{}】的性别类型不存在，无法进行新增操作", manage.getSexId()));
-        UserInfo info = new UserInfo();
-        BeanUtils.copyProperties(manage, info, "id");
-        info.setSex(sex);
-        User user = new User();
-        BeanUtils.copyProperties(manage, user);
+        Dict sex = dictService.findById(attribute.getSexId(), 10000L, StrUtil.format("数据编号为【{}】的性别类型不存在，无法进行新增操作", attribute.getSexId()));
+        User user = UserAttribute.adapt(attribute);
         user.setPassword("123456"); // TODO: 加密
+        UserInfo info = user.getInfo();
+        info.setSex(sex);
         user.setInfo(info);
-        user.setAuthorities(setAuthorities(manage.getAuthoritieIds()));
+        user.setAuthorities(setAuthorities(attribute.getAuthoritieIds()));
         user.setState(GlobalConstants.DATA_NORMAL_STATE);
         return userRepository.save(user);
     }
 
-    public User update(UserManage manage) {
-        User user = findById(manage.getId(), StrUtil.format("数据编号为【{}】的用户信息不存在，无法进行修改操作", manage.getId()));
+    public User update(UserIdAttribute attribute) {
+        User user = findById(attribute.getId(), StrUtil.format("数据编号为【{}】的用户信息不存在，无法进行修改操作", attribute.getId()));
         if (GlobalConstants.DATA_KEEP_STATE.equals(user.getState())) {
             Set<Long> authorities = user.getAuthorities().stream().map(Authority::getId).collect(Collectors.toSet());
-            if (!CollectionUtils.isEqualCollection(authorities, manage.getAuthoritieIds())) {
+            if (!CollectionUtils.isEqualCollection(authorities, attribute.getAuthoritieIds())) {
                 throw new BadRequestException("该用户为系统保留用户，无法进行角色修改操作");
             }
         }
-        if (!StringUtils.equals(manage.getUsername(), user.getUsername())) {
+        if (!StringUtils.equals(attribute.getUsername(), user.getUsername())) {
             throw new BadRequestException("用户帐号不允许修改");
         }
-        if (manage.getEmail() != null && userRepository.findByEmailAndIdNot(manage.getEmail(), manage.getId()).isPresent()) {
-            throw new DataAlreadyExistException(StrUtil.format("邮箱为【{}】的用户信息已经存在了", manage.getEmail()));
+        if (attribute.getEmail() != null && userRepository.findByEmailAndIdNot(attribute.getEmail(), attribute.getId()).isPresent()) {
+            throw new DataAlreadyExistException(StrUtil.format("邮箱为【{}】的用户信息已经存在了", attribute.getEmail()));
         }
-        if (manage.getMobilePhone() != null && userRepository.findByMobilePhoneAndIdNot(manage.getMobilePhone(), manage.getId()).isPresent()) {
-            throw new DataAlreadyExistException(StrUtil.format("手机号为【{}】的用户信息已经存在了", manage.getMobilePhone()));
+        if (attribute.getMobilePhone() != null && userRepository.findByMobilePhoneAndIdNot(attribute.getMobilePhone(), attribute.getId()).isPresent()) {
+            throw new DataAlreadyExistException(StrUtil.format("手机号为【{}】的用户信息已经存在了", attribute.getMobilePhone()));
         }
-        Dict sex = dictService.findById(manage.getSexId(), 10000L, StrUtil.format("数据编号为【{}】的性别类型不存在，无法进行修改操作", manage.getSexId()));
-        UserInfo info = user.getInfo();
-        BeanUtils.copyProperties(manage, info, "id");
+        Dict sex = dictService.findById(attribute.getSexId(), 10000L, StrUtil.format("数据编号为【{}】的性别类型不存在，无法进行修改操作", attribute.getSexId()));
+        User updateUser = UserIdAttribute.adapt(attribute, user);
+        UserInfo info = updateUser.getInfo();
         info.setSex(sex);
-        BeanUtils.copyProperties(manage, user);
-        user.setInfo(info);
-        user.setAuthorities(setAuthorities(manage.getAuthoritieIds()));
-        return userRepository.save(user);
+        updateUser.setInfo(info);
+        updateUser.setAuthorities(setAuthorities(attribute.getAuthoritieIds()));
+        return userRepository.save(updateUser);
     }
 
     public List<User> batchDelete(Long[] ids) {

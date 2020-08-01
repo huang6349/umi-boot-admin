@@ -1,20 +1,17 @@
-package org.umi.boot.web.rest.filters;
+package org.umi.boot.web.rest.query;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@ApiModel("文件过滤条件")
+@ApiModel(description = "文件查询（过滤条件）", value = "FileFilter")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FileFilters {
+public class FileFilter {
 
-    @ApiModelProperty("文件名称")
     private String name;
 
-    @ApiModelProperty("创建人")
     private String createdBy;
 }

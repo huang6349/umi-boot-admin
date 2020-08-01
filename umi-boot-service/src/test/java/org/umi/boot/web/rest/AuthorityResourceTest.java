@@ -23,8 +23,9 @@ import org.umi.boot.domain.Permission;
 import org.umi.boot.repository.AuthorityRepository;
 import org.umi.boot.service.AuthorityService;
 import org.umi.boot.service.PermissionService;
-import org.umi.boot.web.rest.manage.AuthorityManage;
-import org.umi.boot.web.rest.manage.PermissionManage;
+import org.umi.boot.web.rest.manage.AuthorityAttribute;
+import org.umi.boot.web.rest.manage.AuthorityIdAttribute;
+import org.umi.boot.web.rest.manage.PermissionAttribute;
 
 import java.util.List;
 import java.util.Set;
@@ -61,12 +62,12 @@ class AuthorityResourceTest {
     @Test
     void create() throws Exception {
         List<Authority> prevAll = authorityRepository.findAll();
-        AuthorityManage manage = new AuthorityManage();
-        manage.setName(DEFAULT_NAME);
-        manage.setCode(DEFAULT_CODE);
+        AuthorityAttribute attribute = new AuthorityAttribute();
+        attribute.setName(DEFAULT_NAME);
+        attribute.setCode(DEFAULT_CODE);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.post("/api/authority")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(manage)));
+                .content(objectMapper.writeValueAsString(attribute)));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
         actions.andExpect(status().isOk()).andDo(print());
         List<Authority> currAll = authorityRepository.findAll();
@@ -86,10 +87,10 @@ class AuthorityResourceTest {
 
     @Test
     void query() throws Exception {
-        AuthorityManage manage = new AuthorityManage();
-        manage.setName(DEFAULT_NAME);
-        manage.setCode(DEFAULT_CODE);
-        authorityService.create(manage);
+        AuthorityAttribute attribute = new AuthorityAttribute();
+        attribute.setName(DEFAULT_NAME);
+        attribute.setCode(DEFAULT_CODE);
+        authorityService.create(attribute);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/authority")
                 .accept(MediaType.APPLICATION_JSON));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
@@ -98,10 +99,10 @@ class AuthorityResourceTest {
 
     @Test
     void queryById() throws Exception {
-        AuthorityManage manage = new AuthorityManage();
-        manage.setName(DEFAULT_NAME);
-        manage.setCode(DEFAULT_CODE);
-        Authority authority = authorityService.create(manage);
+        AuthorityAttribute attribute = new AuthorityAttribute();
+        attribute.setName(DEFAULT_NAME);
+        attribute.setCode(DEFAULT_CODE);
+        Authority authority = authorityService.create(attribute);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/authority/" + authority.getId())
                 .accept(MediaType.APPLICATION_JSON));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
@@ -110,10 +111,10 @@ class AuthorityResourceTest {
 
     @Test
     void queryByPageable() throws Exception {
-        AuthorityManage manage = new AuthorityManage();
-        manage.setName(DEFAULT_NAME);
-        manage.setCode(DEFAULT_CODE);
-        authorityService.create(manage);
+        AuthorityAttribute attribute = new AuthorityAttribute();
+        attribute.setName(DEFAULT_NAME);
+        attribute.setCode(DEFAULT_CODE);
+        authorityService.create(attribute);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/authority/pageable")
                 .param("page", "0")
                 .param("size", "20")
@@ -124,18 +125,18 @@ class AuthorityResourceTest {
 
     @Test
     void update() throws Exception {
-        AuthorityManage manage = new AuthorityManage();
-        manage.setName(DEFAULT_NAME);
-        manage.setCode(DEFAULT_CODE);
-        Authority prevAuthority = authorityService.create(manage);
+        AuthorityAttribute attribute = new AuthorityAttribute();
+        attribute.setName(DEFAULT_NAME);
+        attribute.setCode(DEFAULT_CODE);
+        Authority prevAuthority = authorityService.create(attribute);
         List<Authority> prevAll = authorityRepository.findAll();
-        AuthorityManage updateManage = new AuthorityManage();
-        BeanUtils.copyProperties(prevAuthority, updateManage);
-        updateManage.setName(UPDATE_NAME);
-        updateManage.setCode(UPDATE_CODE);
+        AuthorityIdAttribute updateattribute = new AuthorityIdAttribute();
+        BeanUtils.copyProperties(prevAuthority, updateattribute);
+        updateattribute.setName(UPDATE_NAME);
+        updateattribute.setCode(UPDATE_CODE);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.put("/api/authority")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateManage)));
+                .content(objectMapper.writeValueAsString(updateattribute)));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
         actions.andExpect(status().isOk()).andDo(print());
         List<Authority> currAll = authorityRepository.findAll();
@@ -155,17 +156,17 @@ class AuthorityResourceTest {
 
     @Test
     void updatePermissions() throws Exception {
-        AuthorityManage manage = new AuthorityManage();
-        manage.setName(DEFAULT_NAME);
-        manage.setCode(DEFAULT_CODE);
-        Authority prevAuthority = authorityService.create(manage);
+        AuthorityAttribute attribute = new AuthorityAttribute();
+        attribute.setName(DEFAULT_NAME);
+        attribute.setCode(DEFAULT_CODE);
+        Authority prevAuthority = authorityService.create(attribute);
         List<Authority> prevAll = authorityRepository.findAll();
-        PermissionManage permissionManage1 = new PermissionManage();
-        permissionManage1.setName(RandomUtil.randomString(12));
-        Permission permission1 = permissionService.create(permissionManage1);
-        PermissionManage permissionManage2 = new PermissionManage();
-        permissionManage2.setName(RandomUtil.randomString(12));
-        Permission permission2 = permissionService.create(permissionManage2);
+        PermissionAttribute permissionattribute1 = new PermissionAttribute();
+        permissionattribute1.setName(RandomUtil.randomString(12));
+        Permission permission1 = permissionService.create(permissionattribute1);
+        PermissionAttribute permissionattribute2 = new PermissionAttribute();
+        permissionattribute2.setName(RandomUtil.randomString(12));
+        Permission permission2 = permissionService.create(permissionattribute2);
         Set<Long> permissionIds = Sets.newHashSet(permission1.getId(), permission2.getId());
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.put("/api/authority/permissions/" + prevAuthority.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -189,14 +190,14 @@ class AuthorityResourceTest {
 
     @Test
     void delete() throws Exception {
-        AuthorityManage manage1 = new AuthorityManage();
-        manage1.setName(RandomUtil.randomString(12));
-        manage1.setCode(RandomUtil.randomStringUpper(12));
-        Authority authority1 = authorityService.create(manage1);
-        AuthorityManage manage2 = new AuthorityManage();
-        manage2.setName(RandomUtil.randomString(12));
-        manage2.setCode(RandomUtil.randomStringUpper(12));
-        Authority authority2 = authorityService.create(manage2);
+        AuthorityAttribute attribute1 = new AuthorityAttribute();
+        attribute1.setName(RandomUtil.randomString(12));
+        attribute1.setCode(RandomUtil.randomStringUpper(12));
+        Authority authority1 = authorityService.create(attribute1);
+        AuthorityAttribute attribute2 = new AuthorityAttribute();
+        attribute2.setName(RandomUtil.randomString(12));
+        attribute2.setCode(RandomUtil.randomStringUpper(12));
+        Authority authority2 = authorityService.create(attribute2);
         List<Authority> prevAll = authorityRepository.findAll();
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.delete("/api/authority/" + authority1.getId() + "," + authority2.getId())
                 .accept(MediaType.APPLICATION_JSON));

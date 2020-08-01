@@ -5,35 +5,41 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.BeanUtils;
+import org.umi.boot.domain.Dict;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-@ApiModel("字典管理模型")
+@ApiModel(description = "字典管理（新增属性）", value = "DictAttribute")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DictManage {
+public class DictAttribute {
 
-    @ApiModelProperty("数据编号")
-    private Long id;
-
-    @ApiModelProperty("上级数据编号")
+    @ApiModelProperty(value = "上级数据编号")
     private Long pid = 0L;
 
-    @ApiModelProperty("字典名称")
+    @ApiModelProperty(value = "字典名称", required = true)
     @NotBlank(message = "字典名称不能为空")
     @Size(max = 50, message = "字典名称的长度只能小于50个字符")
     private String name;
 
-    @ApiModelProperty("字典唯一标识码")
+    @ApiModelProperty(value = "字典唯一标识码")
     @Size(max = 50, message = "字典唯一标识码的长度只能小于50个字符")
     private String code;
 
-    @ApiModelProperty("字典数据")
+    @ApiModelProperty(value = "字典数据")
     @Size(max = 50, message = "字典数据的长度只能小于50个字符")
     private String data;
 
-    @ApiModelProperty("字典描述")
+    @ApiModelProperty(value = "字典描述")
     private String desc;
+
+    public static Dict adapt(DictAttribute attribute) {
+        if (attribute == null) return null;
+        Dict dict = new Dict();
+        BeanUtils.copyProperties(attribute, dict);
+        return dict;
+    }
 }

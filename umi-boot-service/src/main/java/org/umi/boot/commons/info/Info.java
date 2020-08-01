@@ -1,5 +1,7 @@
 package org.umi.boot.commons.info;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 import org.springframework.data.domain.Page;
 import org.umi.boot.commons.info.enums.ShowType;
@@ -40,13 +42,16 @@ public interface Info {
         return new InfoStructure(false, errorCode, message, showType.getShowType(), e, traceId, host);
     }
 
+    @ApiModel(description = "分页数据模型", value = "PaginationData")
     @Data
     class PaginationData implements Serializable {
 
         private static final long serialVersionUID = 2205170132541309365L;
 
+        @ApiModelProperty(value = "当前页数据", required = true)
         private Object list;
 
+        @ApiModelProperty(value = "数据总行数", required = true)
         private Long total;
 
         public PaginationData(Object list, Long total) {

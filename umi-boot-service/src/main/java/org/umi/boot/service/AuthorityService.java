@@ -2,7 +2,6 @@ package org.umi.boot.service;
 
 import cn.hutool.core.util.StrUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +11,8 @@ import org.umi.boot.config.GlobalConstants;
 import org.umi.boot.domain.Authority;
 import org.umi.boot.domain.Permission;
 import org.umi.boot.repository.AuthorityRepository;
-import org.umi.boot.web.rest.manage.AuthorityManage;
+import org.umi.boot.web.rest.manage.AuthorityAttribute;
+import org.umi.boot.web.rest.manage.AuthorityIdAttribute;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,41 +38,40 @@ public class AuthorityService {
         return permission.get();
     }
 
-    public Authority create(AuthorityManage manage) {
-        if (!authorityRepository.findByName(manage.getName()).isEmpty()) {
-            throw new DataAlreadyExistException(StrUtil.format("名称为【{}】的角色信息已经存在了", manage.getName()));
+    public Authority create(AuthorityAttribute attribute) {
+        if (!authorityRepository.findByName(attribute.getName()).isEmpty()) {
+            throw new DataAlreadyExistException(StrUtil.format("名称为【{}】的角色信息已经存在了", attribute.getName()));
         }
-        String formatCode = StrUtil.format("ROLE_{}", manage.getCode());
+        String formatCode = StrUtil.format("ROLE_{}", attribute.getCode());
         if (GlobalConstants.AUTHORITY_ANONYMOUS.equals(formatCode) || !authorityRepository.findByCode(formatCode).isEmpty()) {
-            throw new DataAlreadyExistException("唯一标识码为【{}】的角色信息已经存在了", manage.getCode());
+            throw new DataAlreadyExistException("唯一标识码为【{}】的角色信息已经存在了", attribute.getCode());
         }
-        Authority authority = new Authority();
-        BeanUtils.copyProperties(manage, authority);
+        Authority authority = AuthorityAttribute.adapt(attribute);
         authority.setCode(formatCode);
         authority.setState(GlobalConstants.DATA_NORMAL_STATE);
         return authorityRepository.save(authority);
     }
 
-    public Authority update(AuthorityManage manage) {
-        Authority authority = findById(manage.getId(), StrUtil.format("数据编号为【{}】的角色信息不存在，无法进行修改操作", manage.getId()));
-        String formatCode = StrUtil.format("ROLE_{}", manage.getCode());
+    public Authority update(AuthorityIdAttribute attribute) {
+        Authority authority = findById(attribute.getId(), StrUtil.format("数据编号为【{}】的角色信息不存在，无法进行修改操作", attribute.getId()));
+        String formatCode = StrUtil.format("ROLE_{}", attribute.getCode());
         if (GlobalConstants.DATA_KEEP_STATE.equals(authority.getState())) {
-            if (!StringUtils.equals(StringUtils.trimToNull(manage.getName()), StringUtils.trimToNull(authority.getName()))) {
+            if (!StringUtils.equals(StringUtils.trimToNull(attribute.getName()), StringUtils.trimToNull(authority.getName()))) {
                 throw new BadRequestException("该角色为系统保留角色，无法进行名称修改操作");
             }
             if (!StringUtils.equals(StringUtils.trimToNull(formatCode), StringUtils.trimToNull(authority.getCode()))) {
                 throw new BadRequestException("该角色为系统保留角色，无法进行唯一标识码修改操作");
             }
         }
-        if (!authorityRepository.findByNameAndIdNot(manage.getName(), manage.getId()).isEmpty()) {
-            throw new DataAlreadyExistException(StrUtil.format("名称为【{}】的角色信息已经存在了", manage.getName()));
+        if (!authorityRepository.findByNameAndIdNot(attribute.getName(), attribute.getId()).isEmpty()) {
+            throw new DataAlreadyExistException(StrUtil.format("名称为【{}】的角色信息已经存在了", attribute.getName()));
         }
-        if (GlobalConstants.AUTHORITY_ANONYMOUS.equals(formatCode) || !authorityRepository.findByCodeAndIdNot(formatCode, manage.getId()).isEmpty()) {
-            throw new DataAlreadyExistException("唯一标识码为【{}】的角色信息已经存在了", manage.getCode());
+        if (GlobalConstants.AUTHORITY_ANONYMOUS.equals(formatCode) || !authorityRepository.findByCodeAndIdNot(formatCode, attribute.getId()).isEmpty()) {
+            throw new DataAlreadyExistException("唯一标识码为【{}】的角色信息已经存在了", attribute.getCode());
         }
-        BeanUtils.copyProperties(manage, authority);
-        authority.setCode(formatCode);
-        return authorityRepository.save(authority);
+        Authority updateAuthority = AuthorityIdAttribute.adapt(attribute, authority);
+        updateAuthority.setCode(formatCode);
+        return authorityRepository.save(updateAuthority);
     }
 
     public Authority update(Long id, Set<Long> permissionIds) {

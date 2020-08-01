@@ -1,7 +1,6 @@
 package org.umi.boot.web.rest.vm;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -11,35 +10,27 @@ import org.umi.boot.domain.Resource;
 
 import java.time.Instant;
 
-@ApiModel("菜单资源视图模型")
+@ApiModel(description = "菜单资源信息（显示模型）", value = "ResourceVM")
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResourceVM extends AbstractIdAuditingVM {
 
-    @ApiModelProperty("所属菜单")
     private Long permissionId;
 
-    @ApiModelProperty("所属菜单（文字）")
     private String permissionText;
 
-    @ApiModelProperty("资源地址")
     private String pattern;
 
-    @ApiModelProperty("资源类型")
     private Long methodId;
 
-    @ApiModelProperty("资源类型（文字）")
     private String methodText;
 
-    @ApiModelProperty("资源描述")
     private String desc;
 
-    @ApiModelProperty("最后修改人")
     private String lastModifiedBy;
 
-    @ApiModelProperty("最后修改时间")
     private Instant lastModifiedDate;
 
     public static ResourceVM adapt(Resource resource) {

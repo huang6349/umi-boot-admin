@@ -2,7 +2,6 @@ package org.umi.boot.service;
 
 import cn.hutool.core.util.StrUtil;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +13,8 @@ import org.umi.boot.domain.Permission;
 import org.umi.boot.repository.PermissionRepository;
 import org.umi.boot.repository.UserRepository;
 import org.umi.boot.security.SecurityUtils;
-import org.umi.boot.web.rest.manage.PermissionManage;
+import org.umi.boot.web.rest.manage.PermissionAttribute;
+import org.umi.boot.web.rest.manage.PermissionIdAttribute;
 
 import java.util.Arrays;
 import java.util.List;
@@ -47,44 +47,43 @@ public class PermissionService {
                 .orElse(null);
     }
 
-    public Permission create(PermissionManage manage) {
-        if (!permissionRepository.findByName(manage.getName()).isEmpty()) {
-            throw new DataAlreadyExistException(StrUtil.format("名称为【{}】的菜单信息已经存在了", manage.getName()));
+    public Permission create(PermissionAttribute attribute) {
+        if (!permissionRepository.findByName(attribute.getName()).isEmpty()) {
+            throw new DataAlreadyExistException(StrUtil.format("名称为【{}】的菜单信息已经存在了", attribute.getName()));
         }
-        Permission permission = new Permission();
-        BeanUtils.copyProperties(manage, permission);
+        Permission permission = PermissionAttribute.adapt(attribute);
         permission.setState(GlobalConstants.DATA_NORMAL_STATE);
-        permission.setLevel(LevelUtil.calculateLevel(getLevel(manage.getPid()), manage.getPid()));
+        permission.setLevel(LevelUtil.calculateLevel(getLevel(attribute.getPid()), attribute.getPid()));
         return permissionRepository.save(permission);
     }
 
-    public Permission update(PermissionManage manage) {
-        Permission permission = findById(manage.getId(), StrUtil.format("数据编号为【{}】的菜单信息不存在，无法进行修改操作", manage.getId()));
+    public Permission update(PermissionIdAttribute attribute) {
+        Permission permission = findById(attribute.getId(), StrUtil.format("数据编号为【{}】的菜单信息不存在，无法进行修改操作", attribute.getId()));
         if (GlobalConstants.DATA_KEEP_STATE.equals(permission.getState())) {
-            if (!StringUtils.equals(StringUtils.trimToNull(manage.getName()), StringUtils.trimToNull(permission.getName()))) {
+            if (!StringUtils.equals(StringUtils.trimToNull(attribute.getName()), StringUtils.trimToNull(permission.getName()))) {
                 throw new BadRequestException("该菜单为系统保留菜单，无法进行菜单名称修改操作");
             }
-            if (!StringUtils.equals(StringUtils.trimToNull(manage.getPath()), StringUtils.trimToNull(permission.getPath()))) {
+            if (!StringUtils.equals(StringUtils.trimToNull(attribute.getPath()), StringUtils.trimToNull(permission.getPath()))) {
                 throw new BadRequestException("该菜单为系统保留菜单，无法进行菜单路径修改操作");
             }
-            if (!StringUtils.equals(StringUtils.trimToNull(manage.getIcon()), StringUtils.trimToNull(permission.getIcon()))) {
+            if (!StringUtils.equals(StringUtils.trimToNull(attribute.getIcon()), StringUtils.trimToNull(permission.getIcon()))) {
                 throw new BadRequestException("该菜单为系统保留菜单，无法进行菜单图标修改操作");
             }
         }
-        if (!permissionRepository.findByNameAndIdNot(manage.getName(), manage.getId()).isEmpty()) {
-            throw new DataAlreadyExistException(StrUtil.format("名称为【{}】的菜单信息已经存在了", manage.getName()));
+        if (!permissionRepository.findByNameAndIdNot(attribute.getName(), attribute.getId()).isEmpty()) {
+            throw new DataAlreadyExistException(StrUtil.format("名称为【{}】的菜单信息已经存在了", attribute.getName()));
         }
         String beforeLevel = permission.getLevel();
-        String afterLevel = LevelUtil.calculateLevel(getLevel(manage.getPid()), manage.getPid());
-        if (StringUtils.startsWith(afterLevel, LevelUtil.calculateLevel(beforeLevel, manage.getId()))) {
+        String afterLevel = LevelUtil.calculateLevel(getLevel(attribute.getPid()), attribute.getPid());
+        if (StringUtils.startsWith(afterLevel, LevelUtil.calculateLevel(beforeLevel, attribute.getId()))) {
             throw new BadRequestException("不允许将自己设置为自己的子级");
         }
-        BeanUtils.copyProperties(manage, permission);
+        Permission updatePermission = PermissionIdAttribute.adapt(attribute, permission);
         if (!StringUtils.equals(beforeLevel, afterLevel)) {
-            permission.setLevel(afterLevel);
-            batchUpdateLevel(beforeLevel, afterLevel, manage.getId());
+            updatePermission.setLevel(afterLevel);
+            batchUpdateLevel(beforeLevel, afterLevel, attribute.getId());
         }
-        return permissionRepository.save(permission);
+        return permissionRepository.save(updatePermission);
     }
 
     public List<Permission> batchDelete(Long[] ids) {

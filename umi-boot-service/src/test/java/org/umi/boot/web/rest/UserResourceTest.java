@@ -21,7 +21,8 @@ import org.umi.boot.domain.User;
 import org.umi.boot.domain.UserInfo;
 import org.umi.boot.repository.UserRepository;
 import org.umi.boot.service.UserService;
-import org.umi.boot.web.rest.manage.UserManage;
+import org.umi.boot.web.rest.manage.UserAttribute;
+import org.umi.boot.web.rest.manage.UserIdAttribute;
 
 import java.util.List;
 import java.util.Set;
@@ -54,15 +55,15 @@ class UserResourceTest {
     @Test
     void create() throws Exception {
         Set<Long> authoritieIds = Sets.newHashSet(10000L);
-        UserManage manage = new UserManage();
-        manage.setUsername(DEFAULT_USERNAME);
-        manage.setNickname(DEFAULT_NICKNAME);
-        manage.setSexId(10001L);
-        manage.setAuthoritieIds(authoritieIds);
+        UserAttribute attribute = new UserAttribute();
+        attribute.setUsername(DEFAULT_USERNAME);
+        attribute.setNickname(DEFAULT_NICKNAME);
+        attribute.setSexId(10001L);
+        attribute.setAuthoritieIds(authoritieIds);
         List<User> prevAll = userRepository.findAll();
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.post("/api/user")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(manage)));
+                .content(objectMapper.writeValueAsString(attribute)));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
         actions.andExpect(status().isOk()).andDo(print());
         List<User> currAll = userRepository.findAll();
@@ -94,12 +95,12 @@ class UserResourceTest {
     @Test
     void query() throws Exception {
         Set<Long> authoritieIds = Sets.newHashSet(10000L);
-        UserManage manage = new UserManage();
-        manage.setUsername(DEFAULT_USERNAME);
-        manage.setNickname(DEFAULT_NICKNAME);
-        manage.setSexId(10001L);
-        manage.setAuthoritieIds(authoritieIds);
-        userService.create(manage);
+        UserAttribute attribute = new UserAttribute();
+        attribute.setUsername(DEFAULT_USERNAME);
+        attribute.setNickname(DEFAULT_NICKNAME);
+        attribute.setSexId(10001L);
+        attribute.setAuthoritieIds(authoritieIds);
+        userService.create(attribute);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/user")
                 .accept(MediaType.APPLICATION_JSON));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
@@ -109,12 +110,12 @@ class UserResourceTest {
     @Test
     void queryById() throws Exception {
         Set<Long> authoritieIds = Sets.newHashSet(10000L);
-        UserManage manage = new UserManage();
-        manage.setUsername(DEFAULT_USERNAME);
-        manage.setNickname(DEFAULT_NICKNAME);
-        manage.setSexId(10001L);
-        manage.setAuthoritieIds(authoritieIds);
-        User user = userService.create(manage);
+        UserAttribute attribute = new UserAttribute();
+        attribute.setUsername(DEFAULT_USERNAME);
+        attribute.setNickname(DEFAULT_NICKNAME);
+        attribute.setSexId(10001L);
+        attribute.setAuthoritieIds(authoritieIds);
+        User user = userService.create(attribute);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/user/" + user.getId())
                 .accept(MediaType.APPLICATION_JSON));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
@@ -124,12 +125,12 @@ class UserResourceTest {
     @Test
     void queryByPageable() throws Exception {
         Set<Long> authoritieIds = Sets.newHashSet(10000L);
-        UserManage manage = new UserManage();
-        manage.setUsername(DEFAULT_USERNAME);
-        manage.setNickname(DEFAULT_NICKNAME);
-        manage.setSexId(10001L);
-        manage.setAuthoritieIds(authoritieIds);
-        userService.create(manage);
+        UserAttribute attribute = new UserAttribute();
+        attribute.setUsername(DEFAULT_USERNAME);
+        attribute.setNickname(DEFAULT_NICKNAME);
+        attribute.setSexId(10001L);
+        attribute.setAuthoritieIds(authoritieIds);
+        userService.create(attribute);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/user/pageable")
                 .param("page", "0")
                 .param("size", "20")
@@ -141,24 +142,24 @@ class UserResourceTest {
     @Test
     void update() throws Exception {
         Set<Long> authoritieIds = Sets.newHashSet(10000L);
-        UserManage manage = new UserManage();
-        manage.setUsername(DEFAULT_USERNAME);
-        manage.setNickname(DEFAULT_NICKNAME);
-        manage.setSexId(10001L);
-        manage.setAuthoritieIds(authoritieIds);
-        User prevUser = userService.create(manage);
+        UserAttribute attribute = new UserAttribute();
+        attribute.setUsername(DEFAULT_USERNAME);
+        attribute.setNickname(DEFAULT_NICKNAME);
+        attribute.setSexId(10001L);
+        attribute.setAuthoritieIds(authoritieIds);
+        User prevUser = userService.create(attribute);
         UserInfo prevInfo = prevUser.getInfo();
-        UserManage updateManage = new UserManage();
-        BeanUtils.copyProperties(prevUser, updateManage);
-        BeanUtils.copyProperties(prevInfo, updateManage);
-        updateManage.setId(prevUser.getId());
-        updateManage.setNickname(UPDATE_NICKNAME);
-        updateManage.setSexId(10002L);
-        updateManage.setAuthoritieIds(authoritieIds);
+        UserIdAttribute updateattribute = new UserIdAttribute();
+        BeanUtils.copyProperties(prevUser, updateattribute);
+        BeanUtils.copyProperties(prevInfo, updateattribute);
+        updateattribute.setId(prevUser.getId());
+        updateattribute.setNickname(UPDATE_NICKNAME);
+        updateattribute.setSexId(10002L);
+        updateattribute.setAuthoritieIds(authoritieIds);
         List<User> prevAll = userRepository.findAll();
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.put("/api/user")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateManage)));
+                .content(objectMapper.writeValueAsString(updateattribute)));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
         actions.andExpect(status().isOk()).andDo(print());
         List<User> currAll = userRepository.findAll();
@@ -190,18 +191,18 @@ class UserResourceTest {
     @Test
     void enable() throws Exception {
         Set<Long> authoritieIds = Sets.newHashSet(10000L);
-        UserManage manage1 = new UserManage();
-        manage1.setUsername("Test" + RandomUtil.randomNumbers(10));
-        manage1.setNickname(DEFAULT_NICKNAME);
-        manage1.setSexId(10001L);
-        manage1.setAuthoritieIds(authoritieIds);
-        User user1 = userService.create(manage1);
-        UserManage manage2 = new UserManage();
-        manage2.setUsername("Test" + RandomUtil.randomNumbers(10));
-        manage2.setNickname(DEFAULT_NICKNAME);
-        manage2.setSexId(10002L);
-        manage2.setAuthoritieIds(authoritieIds);
-        User user2 = userService.create(manage2);
+        UserAttribute attribute1 = new UserAttribute();
+        attribute1.setUsername("Test" + RandomUtil.randomNumbers(10));
+        attribute1.setNickname(DEFAULT_NICKNAME);
+        attribute1.setSexId(10001L);
+        attribute1.setAuthoritieIds(authoritieIds);
+        User user1 = userService.create(attribute1);
+        UserAttribute attribute2 = new UserAttribute();
+        attribute2.setUsername("Test" + RandomUtil.randomNumbers(10));
+        attribute2.setNickname(DEFAULT_NICKNAME);
+        attribute2.setSexId(10002L);
+        attribute2.setAuthoritieIds(authoritieIds);
+        User user2 = userService.create(attribute2);
         List<User> prevAll = userRepository.findAll();
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.put("/api/user/enable/" + user1.getId() + "," + user2.getId())
                 .accept(MediaType.APPLICATION_JSON));
@@ -214,18 +215,18 @@ class UserResourceTest {
     @Test
     void disable() throws Exception {
         Set<Long> authoritieIds = Sets.newHashSet(10000L);
-        UserManage manage1 = new UserManage();
-        manage1.setUsername("Test" + RandomUtil.randomNumbers(10));
-        manage1.setNickname(DEFAULT_NICKNAME);
-        manage1.setSexId(10001L);
-        manage1.setAuthoritieIds(authoritieIds);
-        User user1 = userService.create(manage1);
-        UserManage manage2 = new UserManage();
-        manage2.setUsername("Test" + RandomUtil.randomNumbers(10));
-        manage2.setNickname(DEFAULT_NICKNAME);
-        manage2.setSexId(10002L);
-        manage2.setAuthoritieIds(authoritieIds);
-        User user2 = userService.create(manage2);
+        UserAttribute attribute1 = new UserAttribute();
+        attribute1.setUsername("Test" + RandomUtil.randomNumbers(10));
+        attribute1.setNickname(DEFAULT_NICKNAME);
+        attribute1.setSexId(10001L);
+        attribute1.setAuthoritieIds(authoritieIds);
+        User user1 = userService.create(attribute1);
+        UserAttribute attribute2 = new UserAttribute();
+        attribute2.setUsername("Test" + RandomUtil.randomNumbers(10));
+        attribute2.setNickname(DEFAULT_NICKNAME);
+        attribute2.setSexId(10002L);
+        attribute2.setAuthoritieIds(authoritieIds);
+        User user2 = userService.create(attribute2);
         List<User> prevAll = userRepository.findAll();
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.put("/api/user/disable/" + user1.getId() + "," + user2.getId())
                 .accept(MediaType.APPLICATION_JSON));
@@ -238,18 +239,18 @@ class UserResourceTest {
     @Test
     void delete() throws Exception {
         Set<Long> authoritieIds = Sets.newHashSet(10000L);
-        UserManage manage1 = new UserManage();
-        manage1.setUsername("Test" + RandomUtil.randomNumbers(10));
-        manage1.setNickname(DEFAULT_NICKNAME);
-        manage1.setSexId(10001L);
-        manage1.setAuthoritieIds(authoritieIds);
-        User user1 = userService.create(manage1);
-        UserManage manage2 = new UserManage();
-        manage2.setUsername("Test" + RandomUtil.randomNumbers(10));
-        manage2.setNickname(DEFAULT_NICKNAME);
-        manage2.setSexId(10002L);
-        manage2.setAuthoritieIds(authoritieIds);
-        User user2 = userService.create(manage2);
+        UserAttribute attribute1 = new UserAttribute();
+        attribute1.setUsername("Test" + RandomUtil.randomNumbers(10));
+        attribute1.setNickname(DEFAULT_NICKNAME);
+        attribute1.setSexId(10001L);
+        attribute1.setAuthoritieIds(authoritieIds);
+        User user1 = userService.create(attribute1);
+        UserAttribute attribute2 = new UserAttribute();
+        attribute2.setUsername("Test" + RandomUtil.randomNumbers(10));
+        attribute2.setNickname(DEFAULT_NICKNAME);
+        attribute2.setSexId(10002L);
+        attribute2.setAuthoritieIds(authoritieIds);
+        User user2 = userService.create(attribute2);
         List<User> prevAll = userRepository.findAll();
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.delete("/api/user/" + user1.getId() + "," + user2.getId())
                 .accept(MediaType.APPLICATION_JSON));

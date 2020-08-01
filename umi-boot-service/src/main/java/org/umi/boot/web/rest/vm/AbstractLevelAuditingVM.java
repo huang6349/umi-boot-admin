@@ -1,18 +1,16 @@
 package org.umi.boot.web.rest.vm;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.common.collect.Lists;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.umi.boot.web.rest.vm.AbstractIdAuditingVM;
 
 import java.util.List;
 
-@ApiModel("数据审计视图模型（树形结构）")
+@ApiModel(description = "显示模型（树形结构）", value = "AbstractLevelAuditingVM<E>")
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor

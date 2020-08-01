@@ -21,7 +21,8 @@ import org.umi.boot.commons.utils.LevelUtil;
 import org.umi.boot.domain.Permission;
 import org.umi.boot.repository.PermissionRepository;
 import org.umi.boot.service.PermissionService;
-import org.umi.boot.web.rest.manage.PermissionManage;
+import org.umi.boot.web.rest.manage.PermissionAttribute;
+import org.umi.boot.web.rest.manage.PermissionIdAttribute;
 
 import java.util.List;
 
@@ -52,11 +53,11 @@ class PermissionResourceTest {
     @Test
     void create() throws Exception {
         List<Permission> prevAll = permissionRepository.findAll();
-        PermissionManage manage = new PermissionManage();
-        manage.setName(DEFAULT_NAME);
+        PermissionAttribute attribute = new PermissionAttribute();
+        attribute.setName(DEFAULT_NAME);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.post("/api/permission")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(manage)));
+                .content(objectMapper.writeValueAsString(attribute)));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
         actions.andExpect(status().isOk()).andDo(print());
         List<Permission> currAll = permissionRepository.findAll();
@@ -80,9 +81,9 @@ class PermissionResourceTest {
 
     @Test
     void query() throws Exception {
-        PermissionManage manage = new PermissionManage();
-        manage.setName(DEFAULT_NAME);
-        permissionService.create(manage);
+        PermissionAttribute attribute = new PermissionAttribute();
+        attribute.setName(DEFAULT_NAME);
+        permissionService.create(attribute);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/permission")
                 .accept(MediaType.APPLICATION_JSON));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
@@ -91,17 +92,17 @@ class PermissionResourceTest {
 
     @Test
     void queryToTree() throws Exception {
-        PermissionManage manage = new PermissionManage();
-        manage.setName(DEFAULT_NAME);
-        Permission permission = permissionService.create(manage);
-        PermissionManage manage1 = new PermissionManage();
-        manage1.setPid(permission.getId());
-        manage1.setName(RandomUtil.randomString(12));
-        permissionService.create(manage1);
-        PermissionManage manage2 = new PermissionManage();
-        manage2.setPid(permission.getId());
-        manage2.setName(RandomUtil.randomString(12));
-        permissionService.create(manage2);
+        PermissionAttribute attribute = new PermissionAttribute();
+        attribute.setName(DEFAULT_NAME);
+        Permission permission = permissionService.create(attribute);
+        PermissionAttribute attribute1 = new PermissionAttribute();
+        attribute1.setPid(permission.getId());
+        attribute1.setName(RandomUtil.randomString(12));
+        permissionService.create(attribute1);
+        PermissionAttribute attribute2 = new PermissionAttribute();
+        attribute2.setPid(permission.getId());
+        attribute2.setName(RandomUtil.randomString(12));
+        permissionService.create(attribute2);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/permission/tree")
                 .accept(MediaType.APPLICATION_JSON));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
@@ -110,9 +111,9 @@ class PermissionResourceTest {
 
     @Test
     void queryById() throws Exception {
-        PermissionManage manage = new PermissionManage();
-        manage.setName(DEFAULT_NAME);
-        Permission permission = permissionService.create(manage);
+        PermissionAttribute attribute = new PermissionAttribute();
+        attribute.setName(DEFAULT_NAME);
+        Permission permission = permissionService.create(attribute);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/permission/" + permission.getId())
                 .accept(MediaType.APPLICATION_JSON));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
@@ -121,17 +122,17 @@ class PermissionResourceTest {
 
     @Test
     void queryToChildren() throws Exception {
-        PermissionManage manage = new PermissionManage();
-        manage.setName(DEFAULT_NAME);
-        Permission permission = permissionService.create(manage);
-        PermissionManage manage1 = new PermissionManage();
-        manage1.setPid(permission.getId());
-        manage1.setName(RandomUtil.randomString(12));
-        permissionService.create(manage1);
-        PermissionManage manage2 = new PermissionManage();
-        manage2.setPid(permission.getId());
-        manage2.setName(RandomUtil.randomString(12));
-        permissionService.create(manage2);
+        PermissionAttribute attribute = new PermissionAttribute();
+        attribute.setName(DEFAULT_NAME);
+        Permission permission = permissionService.create(attribute);
+        PermissionAttribute attribute1 = new PermissionAttribute();
+        attribute1.setPid(permission.getId());
+        attribute1.setName(RandomUtil.randomString(12));
+        permissionService.create(attribute1);
+        PermissionAttribute attribute2 = new PermissionAttribute();
+        attribute2.setPid(permission.getId());
+        attribute2.setName(RandomUtil.randomString(12));
+        permissionService.create(attribute2);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/permission/children/" + permission.getId())
                 .accept(MediaType.APPLICATION_JSON));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
@@ -140,9 +141,9 @@ class PermissionResourceTest {
 
     @Test
     void queryByPageable() throws Exception {
-        PermissionManage manage = new PermissionManage();
-        manage.setName(DEFAULT_NAME);
-        permissionService.create(manage);
+        PermissionAttribute attribute = new PermissionAttribute();
+        attribute.setName(DEFAULT_NAME);
+        permissionService.create(attribute);
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.get("/api/permission/pageable")
                 .param("page", "0")
                 .param("size", "20")
@@ -153,16 +154,16 @@ class PermissionResourceTest {
 
     @Test
     void update() throws Exception {
-        PermissionManage manage = new PermissionManage();
-        manage.setName(DEFAULT_NAME);
-        Permission prevPermission = permissionService.create(manage);
-        PermissionManage updateManage = new PermissionManage();
-        BeanUtils.copyProperties(prevPermission, updateManage);
-        updateManage.setName(UPDATE_NAME);
+        PermissionAttribute attribute = new PermissionAttribute();
+        attribute.setName(DEFAULT_NAME);
+        Permission prevPermission = permissionService.create(attribute);
+        PermissionIdAttribute updateattribute = new PermissionIdAttribute();
+        BeanUtils.copyProperties(prevPermission, updateattribute);
+        updateattribute.setName(UPDATE_NAME);
         List<Permission> prevAll = permissionRepository.findAll();
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.put("/api/permission")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateManage)));
+                .content(objectMapper.writeValueAsString(updateattribute)));
         actions.andReturn().getResponse().setCharacterEncoding("UTF-8");
         actions.andExpect(status().isOk()).andDo(print());
         List<Permission> currAll = permissionRepository.findAll();
@@ -186,12 +187,12 @@ class PermissionResourceTest {
 
     @Test
     void delete() throws Exception {
-        PermissionManage manage1 = new PermissionManage();
-        manage1.setName(RandomUtil.randomString(12));
-        Permission permission1 = permissionService.create(manage1);
-        PermissionManage manage2 = new PermissionManage();
-        manage2.setName(RandomUtil.randomString(12));
-        Permission permission2 = permissionService.create(manage2);
+        PermissionAttribute attribute1 = new PermissionAttribute();
+        attribute1.setName(RandomUtil.randomString(12));
+        Permission permission1 = permissionService.create(attribute1);
+        PermissionAttribute attribute2 = new PermissionAttribute();
+        attribute2.setName(RandomUtil.randomString(12));
+        Permission permission2 = permissionService.create(attribute2);
         List<Permission> prevAll = permissionRepository.findAll();
         ResultActions actions = mvc.perform(MockMvcRequestBuilders.delete("/api/permission/" + permission1.getId() + "," + permission2.getId())
                 .accept(MediaType.APPLICATION_JSON));

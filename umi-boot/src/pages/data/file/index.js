@@ -51,7 +51,8 @@ export const columns = [
   {
     title: '创建时间',
     key: 'createdDate',
-    width: 240,
+    width: 200,
+    render: { type: 'texttime', props: { children: '#{text}' } },
   },
 ];
 

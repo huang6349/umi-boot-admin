@@ -48,7 +48,8 @@ export const columns = [
   {
     title: '最后修改时间',
     key: 'lastModifiedDate',
-    width: 240,
+    width: 200,
+    render: { type: 'texttime', props: { children: '#{text}' } },
   },
 ];
 

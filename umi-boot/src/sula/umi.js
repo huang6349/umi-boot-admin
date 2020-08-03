@@ -10,3 +10,7 @@ registerActionPlugin('umi:pageable', (ctx, { url, params: { current, pageSize, .
 registerActionPlugin('umi:delete', (ctx, { url }) => {
   return request(url, { method: 'DELETE' });
 });
+
+registerActionPlugin('umi:put', (ctx, { url }) => {
+  return request(url, { method: 'PUT' });
+});

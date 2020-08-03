@@ -51,6 +51,43 @@ export const columns = [
     width: 200,
     render: { type: 'texttime', props: { children: '#{text}' } },
   },
+  {
+    title: '操作',
+    key: 'operator',
+    width: 240,
+    render: {
+      type: 'operationgroup',
+      max: 4,
+      actionsRender: [
+        { type: 'icon', props: { type: 'edit', text: '编辑' } },
+        {
+          type: 'icon',
+          confirm: '您确认要执行删除操作吗？',
+          props: { type: 'delete', text: '删除' },
+          action: [{ type: 'umi:delete', url: '/api/user/#{record["id"]}' }, 'refreshTable'],
+        },
+        { type: 'icon', props: { type: 'file', text: '详情' } },
+        {
+          type: 'icon',
+          text: '启用',
+          props: { type: 'reload' },
+          action: [{ type: 'umi:put', url: '/api/user/enable/#{record["id"]}' }, 'refreshTable'],
+        },
+        {
+          type: 'icon',
+          text: '禁用',
+          props: { type: 'undo' },
+          action: [{ type: 'umi:put', url: '/api/user/disable/#{record["id"]}' }, 'refreshTable'],
+        },
+        {
+          type: 'icon',
+          text: '重置密码',
+          props: { type: 'key' },
+          action: [{ type: 'umi:put', url: '/api/user/reset/password/#{record["id"]}' }, 'refreshTable'],
+        },
+      ],
+    },
+  },
 ];
 
 export const actions = [
